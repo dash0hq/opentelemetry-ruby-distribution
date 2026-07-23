@@ -35,3 +35,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   via `OTEL_SERVICE_NAME` / `OTEL_RESOURCE_ATTRIBUTES`, or opted out with
   `DASH0_AUTOMATIC_SERVICE_NAME=false`). The upstream container detector
   (`container.id`) now runs by default too.
+- Lifecycle handling: `DASH0_BOOTSTRAP_SPAN` emits a named internal span at
+  startup; `DASH0_FLUSH_ON_SIGTERM_SIGINT=true` installs SIGTERM/SIGINT handlers
+  that flush telemetry (timeboxed) and re-raise the signal; an at-exit flush runs
+  by default unless disabled with `DASH0_FLUSH_ON_EXIT=false`.
+  Provider shutdown is idempotent and runs off the trap context to stay
+  mutex-safe.

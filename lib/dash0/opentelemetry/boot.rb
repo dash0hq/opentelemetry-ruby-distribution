@@ -51,6 +51,7 @@ module Dash0
         def configure(base_url)
           SdkConfiguration.apply(base_url: base_url)
           InstrumentationInstaller.start
+          Lifecycle.install
           Dash0::OpenTelemetry.log_debug("Distribution initialized (collector base URL: #{base_url}).")
         rescue StandardError => e
           @booted = false
