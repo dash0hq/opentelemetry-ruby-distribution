@@ -30,3 +30,7 @@ Metrics/BlockLength:
     - "*.gemspec"
 Naming/FileName:
   Enabled: false
+# Several tests assert on multiple facets of one behavior in a single, cohesive
+# case; splitting them purely to satisfy a count would hurt readability.
+Minitest/MultipleAssertions:
+  Max: 12
