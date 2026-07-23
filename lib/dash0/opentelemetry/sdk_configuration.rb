@@ -51,6 +51,7 @@ module Dash0
         require 'opentelemetry-exporter-otlp'
         require 'opentelemetry-exporter-otlp-metrics'
         require 'opentelemetry-exporter-otlp-logs'
+        require 'opentelemetry-resource-detector-container'
         # Populate the instrumentation registry so the installer can sweep it.
         require 'opentelemetry-instrumentation-all'
       end
@@ -68,10 +69,17 @@ module Dash0
         )
       end
 
-      # The distro resource is merged onto the SDK's default resource (process,
-      # SDK, and service-name-from-env attributes) by the configurator.
+      # Builds the resource merged onto the SDK's default resource (process, SDK,
+      # and service-name-from-env attributes) by the configurator. Beyond the
+      # distro identity, this runs the upstream container detector plus the two
+      # custom Dash0 detectors. On key conflicts the later `merge` argument wins;
+      # distro attributes are applied last so they always take effect.
       def build_resource
-        Resource::Distribution.detect
+        ::OpenTelemetry::SDK::Resources::Resource.create({})
+                                                 .merge(::OpenTelemetry::Resource::Detector::Container.detect)
+                                                 .merge(Resource::KubernetesPod.detect)
+                                                 .merge(Resource::ServiceNameFallback.detect)
+                                                 .merge(Resource::Distribution.detect)
       end
     end
   end

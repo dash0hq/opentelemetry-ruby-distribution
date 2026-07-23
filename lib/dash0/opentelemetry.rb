@@ -6,6 +6,8 @@
 require 'dash0/opentelemetry/version'
 require 'dash0/opentelemetry/environment'
 require 'dash0/opentelemetry/resource/distribution'
+require 'dash0/opentelemetry/resource/kubernetes_pod'
+require 'dash0/opentelemetry/resource/service_name_fallback'
 require 'dash0/opentelemetry/instrumentation_installer'
 require 'dash0/opentelemetry/sdk_configuration'
 require 'dash0/opentelemetry/boot'

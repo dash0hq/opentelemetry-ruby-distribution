@@ -29,3 +29,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   periodic reader).
 - `DASH0_DEBUG_PRINT_SPANS=true` prints spans to stdout via a console exporter,
   added alongside (not in place of) the OTLP exporter.
+- Custom resource detectors: `kubernetes-pod` (derives `k8s.pod.uid` from cgroup
+  v1/v2, gated on the `/etc/hosts` Kubernetes marker) and `service-name-fallback`
+  (derives `service.name` from the program entry point unless one is already set
+  via `OTEL_SERVICE_NAME` / `OTEL_RESOURCE_ATTRIBUTES`, or opted out with
+  `DASH0_AUTOMATIC_SERVICE_NAME=false`). The upstream container detector
+  (`container.id`) now runs by default too.
