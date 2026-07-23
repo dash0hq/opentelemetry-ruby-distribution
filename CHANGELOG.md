@@ -22,3 +22,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Zero-code instrumentation install via a `TracePoint(:end)` sweep, so libraries
   loaded after startup are instrumented; honors
   `OTEL_RUBY_ENABLED_INSTRUMENTATIONS`.
+- Metrics and logs export over OTLP/HTTP-protobuf to `/v1/metrics` and
+  `/v1/logs` on the same collector base URL, activated by requiring the metrics
+  and logs SDK gems. Metric export interval/timeout honor
+  `OTEL_METRIC_EXPORT_INTERVAL` / `OTEL_METRIC_EXPORT_TIMEOUT` (via the upstream
+  periodic reader).
+- `DASH0_DEBUG_PRINT_SPANS=true` prints spans to stdout via a console exporter,
+  added alongside (not in place of) the OTLP exporter.

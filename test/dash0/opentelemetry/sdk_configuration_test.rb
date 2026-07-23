@@ -44,6 +44,54 @@ module Dash0
         assert_includes result[:span_names], 'test-span'
       end
 
+      def test_full_boot_configures_metrics_and_logs
+        result = run_in_subprocess('DASH0_OTEL_COLLECTOR_BASE_URL' => 'http://localhost:4318') do
+          require 'dash0-opentelemetry'
+
+          # Metrics
+          metric_exporter = ::OpenTelemetry::SDK::Metrics::Export::InMemoryMetricPullExporter.new
+          ::OpenTelemetry.meter_provider.add_metric_reader(metric_exporter)
+          ::OpenTelemetry.meter_provider.meter('test-meter').create_counter('test.counter').add(2)
+          metric_exporter.pull
+
+          # Logs
+          log_exporter = ::OpenTelemetry::SDK::Logs::Export::InMemoryLogRecordExporter.new
+          ::OpenTelemetry.logger_provider.add_log_record_processor(
+            ::OpenTelemetry::SDK::Logs::Export::SimpleLogRecordProcessor.new(log_exporter)
+          )
+          ::OpenTelemetry.logger_provider.logger(name: 'test-logger').on_emit(severity_text: 'INFO', body: 'hello')
+
+          {
+            meter_provider_class: ::OpenTelemetry.meter_provider.class.name,
+            logger_provider_class: ::OpenTelemetry.logger_provider.class.name,
+            metric_names: metric_exporter.metric_snapshots.map(&:name),
+            log_bodies: log_exporter.emitted_log_records.map(&:body)
+          }
+        end
+
+        refute result[:error], result[:error]
+        assert_equal 'OpenTelemetry::SDK::Metrics::MeterProvider', result[:meter_provider_class]
+        assert_equal 'OpenTelemetry::SDK::Logs::LoggerProvider', result[:logger_provider_class]
+        assert_includes result[:metric_names], 'test.counter'
+        assert_includes result[:log_bodies], 'hello'
+      end
+
+      def test_debug_print_spans_adds_console_processor_without_disabling_otlp
+        result = run_in_subprocess(
+          'DASH0_OTEL_COLLECTOR_BASE_URL' => 'http://localhost:4318',
+          'DASH0_DEBUG_PRINT_SPANS' => 'true'
+        ) do
+          require 'dash0-opentelemetry'
+          processors = ::OpenTelemetry.tracer_provider.instance_variable_get(:@span_processors)
+          { processor_classes: processors.map { |p| p.class.name } }
+        end
+
+        refute result[:error], result[:error]
+        # OTLP export (BatchSpanProcessor) must remain, with the console printer added alongside.
+        assert_includes result[:processor_classes], 'OpenTelemetry::SDK::Trace::Export::BatchSpanProcessor'
+        assert_includes result[:processor_classes], 'OpenTelemetry::SDK::Trace::Export::SimpleSpanProcessor'
+      end
+
       def test_does_not_override_an_explicit_endpoint
         result = run_in_subprocess(
           'DASH0_OTEL_COLLECTOR_BASE_URL' => 'http://localhost:4318',
