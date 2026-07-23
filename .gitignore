@@ -1,0 +1,15 @@
+/.bundle/
+/.yardoc
+/_yardoc/
+/coverage/
+/doc/
+/pkg/
+/tmp/
+*.gem
+Gemfile.lock
+.ruby-version
+**/.DS_Store
+
+# IDE settings
+/.idea/
+/.vscode/
