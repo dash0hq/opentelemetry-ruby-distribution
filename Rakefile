@@ -9,11 +9,23 @@ require 'rubocop/rake_task'
 
 RuboCop::RakeTask.new
 
-Rake::TestTask.new :test do |t|
-  t.libs << 'test'
-  t.libs << 'lib'
-  t.test_files = FileList['test/**/*_test.rb']
-  t.warning = false
+namespace :test do
+  Rake::TestTask.new :unit do |t|
+    t.libs << 'test'
+    t.libs << 'lib'
+    t.test_files = FileList['test/dash0/**/*_test.rb']
+    t.warning = false
+  end
+
+  Rake::TestTask.new :integration do |t|
+    t.libs << 'test'
+    t.libs << 'lib'
+    t.test_files = FileList['test/integration/**/*_test.rb']
+    t.warning = false
+  end
 end
+
+desc 'Run all tests (unit + integration)'
+task test: %w[test:unit test:integration]
 
 task default: %i[test rubocop]

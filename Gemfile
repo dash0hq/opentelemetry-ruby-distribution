@@ -15,4 +15,10 @@ group :test do
   gem 'rubocop-performance', '~> 1.23'
   gem 'rubocop-rake', '~> 0.6'
   gem 'simplecov', '~> 0.22', require: false
+  gem 'webrick', '~> 1.9' # mock OTLP/HTTP collector for integration tests
+
+  # Minimal Rails stack for the default-stack integration smoke. railties +
+  # actionpack only (no ActiveRecord), so there are no native DB dependencies.
+  gem 'actionpack', '~> 7.2'
+  gem 'railties', '~> 7.2'
 end

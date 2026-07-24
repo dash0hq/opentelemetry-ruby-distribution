@@ -41,3 +41,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   by default unless disabled with `DASH0_FLUSH_ON_EXIT=false`.
   Provider shutdown is idempotent and runs off the trap context to stay
   mutex-safe.
+- Integration test harness: an in-process mock OTLP/HTTP collector (decoding the
+  exporter's protobuf payloads) and sample apps run in a separate process with
+  the distribution preloaded via `ruby -r dash0-opentelemetry`. Covers
+  end-to-end export of all three signals with the distro resource attributes,
+  zero-code `net/http` auto-instrumentation, a minimal Rails app (proving the
+  Rack/Rails stack is instrumented when loaded after preload), and the
+  unsupported-Ruby stand-down.
