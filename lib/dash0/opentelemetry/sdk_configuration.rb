@@ -22,6 +22,16 @@ module Dash0
       # DASH0_DEBUG_PRINT_SPANS=true additionally prints every span to stdout.
       DEBUG_PRINT_SPANS_ENV = 'DASH0_DEBUG_PRINT_SPANS'
 
+      # When the operator/injector mounts a Bundler-less gem bundle, its path is
+      # exposed here and the distribution is responsible for putting the bundled
+      # gems on the load path itself.
+      ADDITIONAL_GEM_PATH_ENV = 'OTEL_RUBY_ADDITIONAL_GEM_PATH'
+
+      # Non-`opentelemetry-*` gems from the bundle that must also be on the load
+      # path (OTLP exporter dependencies). Restricting to this set, rather than
+      # every gem in the mount, avoids shadowing the application's own gems.
+      ADDITIONAL_LIB_GEM_ALLOWLIST = %w[googleapis-common-protos-types google-protobuf].freeze
+
       module_function
 
       # @param base_url [String] the Dash0 collector base URL. The generic
@@ -45,6 +55,7 @@ module Dash0
       end
 
       def require_sdk_gems
+        wire_additional_gem_path
         require 'opentelemetry-sdk'
         require 'opentelemetry-metrics-sdk'
         require 'opentelemetry-logs-sdk'
@@ -54,6 +65,27 @@ module Dash0
         require 'opentelemetry-resource-detector-container'
         # Populate the instrumentation registry so the installer can sweep it.
         require 'opentelemetry-instrumentation-all'
+      end
+
+      # In the injected (Bundler-less) environment the OpenTelemetry gems live only
+      # under OTEL_RUBY_ADDITIONAL_GEM_PATH; put their `lib` directories on the load
+      # path so the requires above resolve. A no-op when the variable is unset
+      # (e.g. running under Bundler, where the gems are already resolvable).
+      def wire_additional_gem_path
+        gem_path = ENV.fetch(ADDITIONAL_GEM_PATH_ENV, nil)
+        return if gem_path.nil? || !Dir.exist?(gem_path)
+
+        Dir.glob(File.join(gem_path, 'gems', '*')).each do |gem_dir|
+          next unless on_load_path?(File.basename(gem_dir))
+
+          lib = File.join(gem_dir, 'lib')
+          $LOAD_PATH.unshift(lib) if Dir.exist?(lib) && !$LOAD_PATH.include?(lib)
+        end
+      end
+
+      def on_load_path?(gem_dir_name)
+        gem_dir_name.start_with?('opentelemetry-') ||
+          ADDITIONAL_LIB_GEM_ALLOWLIST.any? { |name| gem_dir_name.start_with?("#{name}-") }
       end
 
       # Adds a console span exporter *after* configure. It must not be added inside

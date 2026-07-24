@@ -92,6 +92,51 @@ module Dash0
         assert_includes result[:processor_classes], 'OpenTelemetry::SDK::Trace::Export::SimpleSpanProcessor'
       end
 
+      def test_wires_bundled_otel_gems_onto_the_load_path
+        # Reproduces the injector's Bundler-less contract: the OpenTelemetry gems
+        # live only under OTEL_RUBY_ADDITIONAL_GEM_PATH and must be put on the load
+        # path — but application gems in the same mount must NOT be, to avoid
+        # shadowing the app's own dependencies.
+        result = run_in_subprocess do
+          require 'tmpdir'
+          require 'fileutils'
+          require 'dash0/opentelemetry'
+
+          mount = Dir.mktmpdir
+          %w[
+            opentelemetry-sdk-1.11.0
+            google-protobuf-4.35.1
+            googleapis-common-protos-types-1.0.0
+            some-application-gem-2.0.0
+          ].each { |g| FileUtils.mkdir_p(File.join(mount, 'gems', g, 'lib')) }
+
+          ENV['OTEL_RUBY_ADDITIONAL_GEM_PATH'] = mount
+          before = $LOAD_PATH.dup
+          Dash0::OpenTelemetry::SdkConfiguration.wire_additional_gem_path
+          added = ($LOAD_PATH - before).map { |path| File.basename(File.dirname(path)) }
+
+          { added: added }
+        end
+
+        refute result[:error], result[:error]
+        assert_includes result[:added], 'opentelemetry-sdk-1.11.0'
+        assert_includes result[:added], 'google-protobuf-4.35.1'
+        assert_includes result[:added], 'googleapis-common-protos-types-1.0.0'
+        refute_includes result[:added], 'some-application-gem-2.0.0'
+      end
+
+      def test_wire_additional_gem_path_is_a_no_op_without_the_env_var
+        result = run_in_subprocess('OTEL_RUBY_ADDITIONAL_GEM_PATH' => nil) do
+          require 'dash0/opentelemetry'
+          before = $LOAD_PATH.dup
+          Dash0::OpenTelemetry::SdkConfiguration.wire_additional_gem_path
+          { changed: $LOAD_PATH != before }
+        end
+
+        refute result[:error], result[:error]
+        refute result[:changed]
+      end
+
       def test_does_not_override_an_explicit_endpoint
         result = run_in_subprocess(
           'DASH0_OTEL_COLLECTOR_BASE_URL' => 'http://localhost:4318',

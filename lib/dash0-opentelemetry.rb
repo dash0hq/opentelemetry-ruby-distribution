@@ -15,6 +15,13 @@
 # to use modern syntax. On an unsupported Ruby we stand down cleanly rather than
 # crash the host application.
 
+# When the operator/injector preloads this file via `RUBYOPT="-r <abs path>"`,
+# Ruby loads it by absolute path without activating the gem, and no Bundler is
+# involved, so this gem's own `lib` is not on the load path yet. Put it there so
+# `require 'dash0/...'` resolves. (Under Bundler this is a harmless no-op.)
+dash0_lib_dir = __dir__
+$LOAD_PATH.unshift(dash0_lib_dir) unless $LOAD_PATH.include?(dash0_lib_dir)
+
 require 'dash0/opentelemetry/version'
 
 if Gem::Version.new(RUBY_VERSION) < Gem::Version.new(Dash0::OpenTelemetry::MINIMUM_RUBY_VERSION)

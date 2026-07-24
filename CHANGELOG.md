@@ -51,3 +51,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Documentation and release tooling: a full environment-variable reference in the
   README, `RELEASING.md`, and a RubyGems trusted-publishing (`release.yml`)
   workflow triggered on version tags.
+- Injection support: when preloaded by the operator/injector (no Bundler, gems
+  mounted on `OTEL_RUBY_ADDITIONAL_GEM_PATH`), the entry point now puts its own
+  `lib` and the bundled OpenTelemetry gems on the load path, so the distribution
+  loads without relying on Bundler or gem activation.
