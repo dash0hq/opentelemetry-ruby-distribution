@@ -48,3 +48,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   zero-code `net/http` auto-instrumentation, a minimal Rails app (proving the
   Rack/Rails stack is instrumented when loaded after preload), and the
   unsupported-Ruby stand-down.
+- Documentation and release tooling: a full environment-variable reference in the
+  README, `RELEASING.md`, and a RubyGems trusted-publishing (`release.yml`)
+  workflow triggered on version tags.
