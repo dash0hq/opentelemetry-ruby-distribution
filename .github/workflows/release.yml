@@ -24,5 +24,7 @@ jobs:
           bundler-cache: true
       - name: Verify (tests + lint)
         run: bundle exec rake
+      - name: Injection smoke (glibc + musl)
+        run: test/docker/verify.sh
       - name: Build and publish to RubyGems
         uses: rubygems/release-gem@v1
