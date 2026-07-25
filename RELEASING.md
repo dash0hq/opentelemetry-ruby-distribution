@@ -10,6 +10,16 @@ On [rubygems.org](https://rubygems.org), configure a trusted publisher for the
 `dash0-opentelemetry` gem pointing at this GitHub repository and the
 `.github/workflows/release.yml` workflow.
 
+On GitHub, configure the `rubygems` [deployment environment][gh-envs] with
+required reviewers (a maintainer must approve each publish). The release
+workflow uses this environment to gate RubyGems Trusted Publishing; without
+required reviewers the environment is a no-op and any triggered run publishes
+automatically. The workflow also refuses to publish a tag that is not reachable
+from `origin/main`, so the two gates together mean a release requires (a) a
+tag on a merged commit and (b) an explicit human approval on the environment.
+
+[gh-envs]: https://docs.github.com/en/actions/deployment/targeting-different-environments/using-environments-for-deployment#required-reviewers
+
 ## Cutting a release
 
 1. Make sure `main` is green (`bundle exec rake`).
