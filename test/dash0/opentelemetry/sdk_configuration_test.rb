@@ -137,6 +137,18 @@ module Dash0
         refute result[:changed]
       end
 
+      def test_wire_additional_gem_path_is_a_no_op_when_the_mount_does_not_exist
+        result = run_in_subprocess('OTEL_RUBY_ADDITIONAL_GEM_PATH' => '/nonexistent/mount/path') do
+          require 'dash0/opentelemetry'
+          before = $LOAD_PATH.dup
+          Dash0::OpenTelemetry::SdkConfiguration.wire_additional_gem_path
+          { changed: $LOAD_PATH != before }
+        end
+
+        refute result[:error], result[:error]
+        refute result[:changed]
+      end
+
       def test_does_not_override_an_explicit_endpoint
         result = run_in_subprocess(
           'DASH0_OTEL_COLLECTOR_BASE_URL' => 'http://localhost:4318',
