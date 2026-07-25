@@ -30,6 +30,16 @@ module Dash0
       # Non-`opentelemetry-*` gems from the bundle that must also be on the load
       # path (OTLP exporter dependencies). Restricting to this set, rather than
       # every gem in the mount, avoids shadowing the application's own gems.
+      #
+      # Drift gate: this list must cover every non-`opentelemetry-*` gem the SDK
+      # closure `require`s at load time in the target's Ruby (excluding default
+      # gems that ship with Ruby itself). The injection smoke workflow reproduces
+      # that closure — `test/docker/verify.sh` builds the mounted bundle, runs
+      # the distribution with `GEM_HOME=/tmp/empty` (no ambient gem environment),
+      # and requires the SDK. If a bundle update pulls in a new non-otel dep, the
+      # `require` fails there with a `LoadError` and the workflow fails; add the
+      # missing gem name here to fix. Keep `Gemfile.lock` in that workflow's path
+      # filter so lockfile-only bumps trip the check.
       ADDITIONAL_LIB_GEM_ALLOWLIST = %w[googleapis-common-protos-types google-protobuf].freeze
 
       module_function
