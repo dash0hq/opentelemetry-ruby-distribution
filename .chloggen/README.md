@@ -30,7 +30,8 @@ bundle exec rake chloggen:validate
 ```
 
 CI runs this on every pull request, and requires a fragment for changes under
-`lib/` (skippable with the `Skip changelog` label).
+`lib/` (skippable with the `Skip changelog` label). CI also fails a PR that
+edits `CHANGELOG.md` directly.
 
 ## Releasing
 

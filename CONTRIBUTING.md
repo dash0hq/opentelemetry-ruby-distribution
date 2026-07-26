@@ -45,7 +45,9 @@ bundle exec rake chloggen:new[short-slug]
 Fill in the generated `.chloggen/<short-slug>.yaml` and commit it alongside
 your change. See [`.chloggen/README.md`](.chloggen/README.md) for the fragment
 format; CI validates fragments and requires one for changes under `lib/`
-(skippable with the `Skip changelog` label).
+(skippable with the `Skip changelog` label). CI also rejects PRs that edit
+`CHANGELOG.md` directly — it is only ever updated by `rake chloggen:update` at
+release time.
 
 ## How it is used
 
