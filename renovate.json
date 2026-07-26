@@ -1,0 +1,17 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "extends": [
+    "config:recommended"
+  ],
+  "bundler": {
+    "enabled": true
+  },
+  "packageRules": [
+    {
+      "matchManagers": ["bundler"],
+      "matchPackagePrefixes": ["opentelemetry-"],
+      "groupName": "upstream OpenTelemetry Ruby",
+      "commitMessageTopic": "upstream OpenTelemetry Ruby dependencies"
+    }
+  ]
+}

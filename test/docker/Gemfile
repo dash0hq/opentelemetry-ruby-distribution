@@ -1,0 +1,18 @@
+# frozen_string_literal: true
+
+# SPDX-FileCopyrightText: Copyright 2026 Dash0 Inc.
+# SPDX-License-Identifier: Apache-2.0
+
+# Dedicated Gemfile for the packaging step. It resolves and pins the exact
+# dependency closure that gets installed into the standalone bundle mounted
+# by the injector (see ../../README.md, "Intended use"). Kept separate from
+# the root Gemfile (dev/test tooling) so pinning the shipped closure doesn't
+# also pin rubocop/minitest/etc., and vice versa.
+#
+# The committed Gemfile.lock next to this file is the source of truth for
+# the versions test/docker/Dockerfile installs. Update it with:
+#   BUNDLE_GEMFILE=test/docker/Gemfile bundle lock --update
+
+source 'https://rubygems.org'
+
+gemspec path: '../..'
