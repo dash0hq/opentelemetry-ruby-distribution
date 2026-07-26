@@ -29,6 +29,7 @@ Metrics/BlockLength:
   Exclude:
     - "**/*_test.rb"
     - "*.gemspec"
+    - "tasks/**/*.rake"
 Naming/FileName:
   Enabled: false
 # Several tests assert on multiple facets of one behavior in a single, cohesive

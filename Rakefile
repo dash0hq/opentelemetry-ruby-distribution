@@ -9,11 +9,14 @@ require 'rubocop/rake_task'
 
 RuboCop::RakeTask.new
 
+Dir.glob(File.join(__dir__, 'tasks', '*.rake')).each { |file| load file }
+
 namespace :test do
   Rake::TestTask.new :unit do |t|
     t.libs << 'test'
     t.libs << 'lib'
-    t.test_files = FileList['test/dash0/**/*_test.rb']
+    t.libs << 'tasks'
+    t.test_files = FileList['test/dash0/**/*_test.rb'] + FileList['test/tasks/**/*_test.rb']
     t.warning = false
   end
 
