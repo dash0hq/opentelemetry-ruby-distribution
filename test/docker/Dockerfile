@@ -30,8 +30,9 @@ RUN if command -v apt-get >/dev/null; then \
 # rubygems.org at build time. Update the pins with:
 #   BUNDLE_GEMFILE=test/docker/Gemfile bundle lock --update
 COPY dash0-opentelemetry.gem /tmp/dash0-opentelemetry.gem
+COPY Gemfile /tmp/packaging-Gemfile
 COPY Gemfile.lock /tmp/packaging-Gemfile.lock
-RUN ruby -rbundler -e ' \
+RUN BUNDLE_GEMFILE=/tmp/packaging-Gemfile ruby -rbundler -e ' \
       lockfile = Bundler::LockfileParser.new(File.read("/tmp/packaging-Gemfile.lock")); \
       pins = lockfile.specs.reject { |s| s.source.is_a?(Bundler::Source::Path) } \
                            .map { |s| "#{s.name}:#{s.version}" }.uniq; \
