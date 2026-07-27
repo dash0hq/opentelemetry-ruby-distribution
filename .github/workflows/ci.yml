@@ -26,3 +26,46 @@ jobs:
           bundler-cache: true
       - name: Run verification (tests + lint)
         run: bundle exec rake
+
+  changelog:
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    name: changelog
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Ruby
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: '3.4'
+          bundler-cache: true
+      - name: Validate changelog fragments
+        run: bundle exec rake chloggen:validate
+      - name: Determine changed files
+        run: |
+          git fetch --depth=100 origin "$GITHUB_BASE_REF"
+          git diff --name-only "origin/$GITHUB_BASE_REF...HEAD" > /tmp/changed-files.txt
+      - name: Forbid manual edits to CHANGELOG.md
+        run: |
+          if grep -qx 'CHANGELOG.md' /tmp/changed-files.txt; then
+            echo "::error::CHANGELOG.md must not be edited directly in a pull request. Add a" \
+              ".chloggen/*.yaml fragment instead ('bundle exec rake chloggen:new[slug]') -" \
+              "CHANGELOG.md is only updated by 'rake chloggen:update' at release time."
+            exit 1
+          fi
+      - name: Require a changelog fragment for changes under lib/
+        if: "!contains(github.event.pull_request.labels.*.name, 'Skip changelog')"
+        run: |
+          if ! grep -q '^lib/' /tmp/changed-files.txt; then
+            echo 'No changes under lib/, skipping changelog fragment check.'
+            exit 0
+          fi
+
+          fragments=$(grep '^\.chloggen/' /tmp/changed-files.txt | grep -v '^\.chloggen/TEMPLATE\.yaml$' || true)
+          if [ -z "$fragments" ]; then
+            echo "::error::This PR changes lib/ but adds no .chloggen/*.yaml fragment. Add one with" \
+              "'bundle exec rake chloggen:new[slug]', or apply the 'Skip changelog' label."
+            exit 1
+          fi
+
+          echo 'Found changelog fragment(s):'
+          echo "$fragments"

@@ -25,8 +25,16 @@ tag on a merged commit and (b) an explicit human approval on the environment.
 1. Make sure `main` is green (`bundle exec rake`).
 2. Bump the version in
    [`lib/dash0/opentelemetry/version.rb`](lib/dash0/opentelemetry/version.rb).
-3. Update [`CHANGELOG.md`](CHANGELOG.md): rename the `Unreleased` section to the
-   new version with today's date, and start a fresh `Unreleased` section.
+3. Merge the pending changelog fragments:
+
+   ```sh
+   bundle exec rake chloggen:update
+   ```
+
+   This folds every fragment under [`.chloggen/`](.chloggen) into
+   [`CHANGELOG.md`](CHANGELOG.md)'s `Unreleased` section (grouped by change
+   type) and deletes the fragments. Then rename `Unreleased` to the new
+   version with today's date, and start a fresh `Unreleased` section.
 4. Commit the change (e.g. `chore: release vX.Y.Z`).
 5. Tag and push:
 

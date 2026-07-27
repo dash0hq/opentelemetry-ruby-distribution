@@ -33,6 +33,22 @@ bundle install
 - This distribution is a **wrapper** around upstream OpenTelemetry Ruby. Prefer
   configuring or extending upstream behavior over reimplementing it.
 
+## Changelog
+
+User-facing changes need a changelog fragment instead of a direct edit to
+`CHANGELOG.md`:
+
+```sh
+bundle exec rake chloggen:new[short-slug]
+```
+
+Fill in the generated `.chloggen/<short-slug>.yaml` and commit it alongside
+your change. See [`.chloggen/README.md`](.chloggen/README.md) for the fragment
+format; CI validates fragments and requires one for changes under `lib/`
+(skippable with the `Skip changelog` label). CI also rejects PRs that edit
+`CHANGELOG.md` directly — it is only ever updated by `rake chloggen:update` at
+release time.
+
 ## How it is used
 
 The distribution is designed to be injected into Ruby workloads by the Dash0
