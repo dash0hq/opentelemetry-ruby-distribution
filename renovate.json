@@ -9,7 +9,7 @@
   "packageRules": [
     {
       "matchManagers": ["bundler"],
-      "matchPackagePrefixes": ["opentelemetry-"],
+      "matchPackageNames": ["opentelemetry-{/,}**"],
       "groupName": "upstream OpenTelemetry Ruby",
       "commitMessageTopic": "upstream OpenTelemetry Ruby dependencies"
     }
