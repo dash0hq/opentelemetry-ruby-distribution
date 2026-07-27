@@ -40,8 +40,9 @@ constraint in `../../dash0-opentelemetry.gemspec`):
 BUNDLE_GEMFILE=test/docker/Gemfile bundle lock --update
 ```
 
-Renovate tracks the upstream `opentelemetry-*` constraints and will keep this
-lockfile in sync automatically.
+Dependabot tracks the upstream `opentelemetry-*` constraints (see
+`../../.github/dependabot.yml`) and will keep this lockfile in sync
+automatically.
 
 ## Scope and what it does *not* cover
 
