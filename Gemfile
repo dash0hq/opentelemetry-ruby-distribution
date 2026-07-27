@@ -8,7 +8,7 @@ source 'https://rubygems.org'
 gemspec
 
 group :test do
-  gem 'minitest', '~> 5.25'
+  gem 'minitest', '~> 6.0'
   gem 'rake', '~> 13.2'
   gem 'rubocop', '~> 1.72'
   gem 'rubocop-minitest', '~> 0.36'
