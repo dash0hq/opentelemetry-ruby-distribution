@@ -24,8 +24,22 @@ RUN if command -v apt-get >/dev/null; then \
 
 # Install the distribution and its full dependency closure into a standalone
 # bundle directory (the analog of the operator's mounted /otel-auto-instrumentation-ruby).
+# Every transitive gem is pinned to the exact version recorded in Gemfile.lock
+# (resolved via ./Gemfile against the gemspec) so the shipped closure is
+# reproducible across builds instead of floating on whatever's newest on
+# rubygems.org at build time. Update the pins with:
+#   BUNDLE_GEMFILE=test/docker/Gemfile bundle lock --update
 COPY dash0-opentelemetry.gem /tmp/dash0-opentelemetry.gem
-RUN gem install /tmp/dash0-opentelemetry.gem --install-dir /otel-ruby --no-document
+COPY Gemfile /tmp/packaging-Gemfile
+COPY Gemfile.lock /tmp/packaging-Gemfile.lock
+RUN BUNDLE_GEMFILE=/tmp/packaging-Gemfile ruby -rbundler -e ' \
+      lockfile = Bundler::LockfileParser.new(File.read("/tmp/packaging-Gemfile.lock")); \
+      pins = lockfile.specs.reject { |s| s.source.is_a?(Bundler::Source::Path) } \
+                           .map { |s| "#{s.name}:#{s.version}" }.uniq; \
+      File.write("/tmp/pins.txt", pins.join(" ")) \
+    ' && \
+    gem install --install-dir /otel-ruby --no-document --ignore-dependencies \
+      $(cat /tmp/pins.txt) /tmp/dash0-opentelemetry.gem
 
 # Create the fixed entry file name the injector requires (relative symlink so it
 # survives being mounted elsewhere), pointing at the distribution's entry point.

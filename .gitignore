@@ -6,7 +6,7 @@
 /pkg/
 /tmp/
 *.gem
-Gemfile.lock
+/Gemfile.lock
 .ruby-version
 **/.DS_Store
 

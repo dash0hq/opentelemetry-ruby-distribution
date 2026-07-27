@@ -27,6 +27,23 @@ test/docker/verify.sh
 Requires Docker. Not part of `rake` (it needs Docker and network to build the
 gem closure).
 
+## Dependency pinning
+
+The gem closure installed into the standalone bundle (`Dockerfile`) is pinned to
+the exact versions recorded in `Gemfile.lock`, resolved from `Gemfile` against
+the distro's own gemspec. This is what's shipped to the injector, so it's kept
+reproducible across builds rather than floating on whatever's newest on
+RubyGems. To pick up new compatible releases (e.g. after bumping a version
+constraint in `../../dash0-opentelemetry.gemspec`):
+
+```sh
+BUNDLE_GEMFILE=test/docker/Gemfile bundle lock --update
+```
+
+Dependabot tracks the upstream `opentelemetry-*` constraints (see
+`../../.github/dependabot.yml`) and will keep this lockfile in sync
+automatically.
+
 ## Scope and what it does *not* cover
 
 Runs on the host architecture only. To exercise amd64 on an arm64 host (or vice
