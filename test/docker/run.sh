@@ -21,6 +21,12 @@ while [ "$i" -lt 50 ]; do
   grep -q COLLECTOR_LISTENING /tmp/collector.log && break
   i=$((i + 1)); sleep 0.1
 done
+if ! grep -q COLLECTOR_LISTENING /tmp/collector.log; then
+  echo "FATAL: collector did not start within 5s"
+  cat /tmp/collector.log
+  kill "$collector_pid" 2>/dev/null || true
+  exit 1
+fi
 
 # Run the app the way the injector does: no Bundler, scrubbed gem paths, the OTel
 # gems available only via the mounted bundle, the entry required through RUBYOPT.

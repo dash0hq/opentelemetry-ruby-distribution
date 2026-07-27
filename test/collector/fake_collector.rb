@@ -25,14 +25,17 @@ class FakeCollector
 
   SIGNALS = {
     '/v1/traces' => [
+      :traces,
       Proto::Collector::Trace::V1::ExportTraceServiceRequest,
       Proto::Collector::Trace::V1::ExportTraceServiceResponse
     ],
     '/v1/metrics' => [
+      :metrics,
       Proto::Collector::Metrics::V1::ExportMetricsServiceRequest,
       Proto::Collector::Metrics::V1::ExportMetricsServiceResponse
     ],
     '/v1/logs' => [
+      :logs,
       Proto::Collector::Logs::V1::ExportLogsServiceRequest,
       Proto::Collector::Logs::V1::ExportLogsServiceResponse
     ]
@@ -123,11 +126,9 @@ class FakeCollector
   end
 
   def install_handlers
-    signal_for = { '/v1/traces' => :traces, '/v1/metrics' => :metrics, '/v1/logs' => :logs }
-
-    SIGNALS.each do |path, (request_class, response_class)|
+    SIGNALS.each do |path, (signal, request_class, response_class)|
       @server.mount_proc(path) do |http_request, http_response|
-        store(signal_for.fetch(path), request_class.decode(payload_of(http_request)))
+        store(signal, request_class.decode(payload_of(http_request)))
         http_response.status = 200
         http_response['Content-Type'] = 'application/x-protobuf'
         http_response.body = response_class.new.to_proto
