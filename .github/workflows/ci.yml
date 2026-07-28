@@ -55,7 +55,6 @@ jobs:
         if: steps.dependabot-check.outputs.skip != 'true'
         run: bundle exec rake chloggen:validate
       - name: Forbid manual edits to CHANGELOG.md
-        if: steps.dependabot-check.outputs.skip != 'true'
         run: |
           if grep -qx 'CHANGELOG.md' /tmp/changed-files.txt; then
             echo "::error::CHANGELOG.md must not be edited directly in a pull request. Add a" \
