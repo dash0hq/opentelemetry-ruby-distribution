@@ -27,14 +27,14 @@ Gem::Specification.new do |spec|
   spec.required_ruby_version = '>= 3.3'
 
   # Upstream OpenTelemetry building blocks.
-  spec.add_dependency 'opentelemetry-exporter-otlp', '~> 0.33.0'
-  spec.add_dependency 'opentelemetry-exporter-otlp-logs', '~> 0.4.0'
-  spec.add_dependency 'opentelemetry-exporter-otlp-metrics', '~> 0.8.0'
-  spec.add_dependency 'opentelemetry-instrumentation-all', '~> 0.91.0'
-  spec.add_dependency 'opentelemetry-logs-sdk', '~> 0.5.1'
-  spec.add_dependency 'opentelemetry-metrics-sdk', '~> 0.13.1'
-  spec.add_dependency 'opentelemetry-resource-detector-container', '~> 0.3.0'
-  spec.add_dependency 'opentelemetry-sdk', '~> 1.11.0'
+  spec.add_dependency 'opentelemetry-exporter-otlp', '>= 0.33', '< 0.35'
+  spec.add_dependency 'opentelemetry-exporter-otlp-logs', '>= 0.4', '< 0.6'
+  spec.add_dependency 'opentelemetry-exporter-otlp-metrics', '>= 0.8', '< 0.11'
+  spec.add_dependency 'opentelemetry-instrumentation-all', '>= 0.91', '< 0.95'
+  spec.add_dependency 'opentelemetry-logs-sdk', '>= 0.5.1', '< 0.7.0'
+  spec.add_dependency 'opentelemetry-metrics-sdk', '>= 0.13.1', '< 0.16.0'
+  spec.add_dependency 'opentelemetry-resource-detector-container', '>= 0.3', '< 0.5'
+  spec.add_dependency 'opentelemetry-sdk', '>= 1.11', '< 1.14'
 
   if spec.respond_to?(:metadata)
     spec.metadata['changelog_uri'] = 'https://github.com/dash0hq/opentelemetry-ruby-distribution/blob/main/CHANGELOG.md'
