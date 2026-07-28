@@ -38,12 +38,22 @@ jobs:
         with:
           ruby-version: '3.4'
           bundler-cache: true
-      - name: Validate changelog fragments
-        run: bundle exec rake chloggen:validate
       - name: Determine changed files
         run: |
           git fetch --depth=100 origin "$GITHUB_BASE_REF"
           git diff --name-only "origin/$GITHUB_BASE_REF...HEAD" > /tmp/changed-files.txt
+      - name: Determine whether this is a dependabot PR that doesn't touch shipped dependencies
+        id: dependabot-check
+        run: |
+          skip=false
+          if [ "$GITHUB_ACTOR" = "dependabot[bot]" ] && ! grep -qx 'dash0-opentelemetry.gemspec' /tmp/changed-files.txt; then
+            echo 'Dependabot PR that only touches dev/test dependencies, skipping changelog checks.'
+            skip=true
+          fi
+          echo "skip=$skip" >> "$GITHUB_OUTPUT"
+      - name: Validate changelog fragments
+        if: steps.dependabot-check.outputs.skip != 'true'
+        run: bundle exec rake chloggen:validate
       - name: Forbid manual edits to CHANGELOG.md
         run: |
           if grep -qx 'CHANGELOG.md' /tmp/changed-files.txt; then
@@ -53,7 +63,7 @@ jobs:
             exit 1
           fi
       - name: Require a changelog fragment for changes under lib/
-        if: "!contains(github.event.pull_request.labels.*.name, 'Skip changelog')"
+        if: steps.dependabot-check.outputs.skip != 'true' && !contains(github.event.pull_request.labels.*.name, 'Skip changelog')
         run: |
           if ! grep -q '^lib/' /tmp/changed-files.txt; then
             echo 'No changes under lib/, skipping changelog fragment check.'
