@@ -1,18 +1,22 @@
 version: 2
 updates:
+  # Root Gemfile: dev/test tooling only.
   - package-ecosystem: "bundler"
     directory: "/"
     schedule:
       interval: "weekly"
-    groups:
-      opentelemetry:
-        patterns:
-          - "opentelemetry-*"
+    ignore:
+      - dependency-name: "opentelemetry-*"
 
+  # Packaging closure: the gems installed into the bundle the injector mounts.
+  # This manifest owns OpenTelemetry bumps — it updates the gemspec constraints
+  # and the committed Gemfile.lock together. `increase` prefers bumping the
+  # requirement to the tested version over widening the range.
   - package-ecosystem: "bundler"
     directory: "/test/docker"
     schedule:
       interval: "weekly"
+    versioning-strategy: increase
     groups:
       opentelemetry:
         patterns:
