@@ -6,14 +6,14 @@
 # runs the injection image on both glibc and musl, verifying the distribution
 # loads and works when injected without Bundler. Not part of `rake` (needs Docker).
 #
-# Usage: test/docker/verify.sh
+# Usage: packaging/verify.sh
 
 set -euo pipefail
 cd "$(dirname "$0")"
 
 echo "==> Building gem"
-(cd ../.. && gem build dash0-opentelemetry.gemspec >/dev/null)
-mv ../../dash0-opentelemetry-*.gem ./dash0-opentelemetry.gem
+(cd .. && gem build dash0-opentelemetry.gemspec >/dev/null)
+mv ../dash0-opentelemetry-*.gem ./dash0-opentelemetry.gem
 trap 'rm -f ./dash0-opentelemetry.gem' EXIT
 
 status=0

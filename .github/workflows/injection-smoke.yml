@@ -1,7 +1,7 @@
 # SPDX-FileCopyrightText: Copyright 2026 Dash0 Inc.
 # SPDX-License-Identifier: Apache-2.0
 
-# Runs the Dockerized injection smoke test (test/docker) on glibc and musl. Kept
+# Runs the Dockerized injection smoke test (packaging) on glibc and musl. Kept
 # separate from the main CI so its Docker/network cost doesn't block the fast
 # unit/integration suite. On GitHub's x86_64 runners this also provides amd64
 # coverage, complementing local arm64 runs.
@@ -13,14 +13,14 @@ on:
     branches: [main]
     paths:
       - 'lib/**'
-      - 'test/docker/**'
+      - 'packaging/**'
       - 'dash0-opentelemetry.gemspec'
       - '.github/workflows/injection-smoke.yml'
   pull_request:
     branches: [main]
     paths:
       - 'lib/**'
-      - 'test/docker/**'
+      - 'packaging/**'
       - 'dash0-opentelemetry.gemspec'
       - '.github/workflows/injection-smoke.yml'
 
@@ -34,4 +34,4 @@ jobs:
         with:
           ruby-version: '3.3'
       - name: Injection smoke (glibc + musl)
-        run: test/docker/verify.sh
+        run: packaging/verify.sh
