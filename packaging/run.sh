@@ -40,11 +40,25 @@ env GEM_HOME=/tmp/empty GEM_PATH=/tmp/empty \
 app_exit=$?
 set -e
 
+# Fail-open: preloaded with an unusable gem bundle (bogus mount), the distribution
+# can't load the SDK. It must stand down and leave the app running — never crash
+# the host (a failed require raises LoadError, a ScriptError, not a StandardError).
+set +e
+env GEM_HOME=/tmp/empty GEM_PATH=/tmp/empty \
+  OTEL_RUBY_ADDITIONAL_GEM_PATH=/nonexistent-mount \
+  RUBYOPT="-r /otel-ruby/opentelemetry-auto-instrumentation.rb" \
+  DASH0_OTEL_COLLECTOR_BASE_URL=http://127.0.0.1:4318 \
+  DASH0_DEBUG=true \
+  ruby /work/plain_app.rb >/tmp/failopen.log 2>&1
+failopen_exit=$?
+set -e
+
 sleep 0.3
 kill "$collector_pid" 2>/dev/null || true
 
 echo "===== app.log ====="; cat /tmp/app.log
 echo "===== collector.log ====="; cat /tmp/collector.log
+echo "===== failopen.log ====="; cat /tmp/failopen.log
 echo "===== checks ====="
 
 fail=0
@@ -56,6 +70,9 @@ check "app body completed"            "grep -q 'APP_DONE' /tmp/app.log"
 check "distro resource present"       "grep -q 'telemetry.distro.name=dash0-ruby' /tmp/app.log"
 check "traces exported to collector"  "grep -q 'COLLECTOR_RECEIVED /v1/traces' /tmp/collector.log"
 check "net/http auto-instrumented"    "grep -q 'COLLECTOR_SCOPE OpenTelemetry::Instrumentation::Net::HTTP' /tmp/collector.log"
+check "fail-open: bad mount exits 0"  "[ $failopen_exit -eq 0 ]"
+check "fail-open: app body ran"       "grep -q 'PLAIN_APP_DONE' /tmp/failopen.log"
+check "fail-open: distro stood down"  "grep -q 'Initialization failed' /tmp/failopen.log"
 
 if [ "$fail" -eq 0 ]; then
   echo "PASS ($(ruby -e 'print RUBY_PLATFORM'))"

@@ -31,6 +31,13 @@ if Gem::Version.new(RUBY_VERSION) < Gem::Version.new(Dash0::OpenTelemetry::MINIM
   return
 end
 
-require 'dash0/opentelemetry'
-
-Dash0::OpenTelemetry.boot!
+# This rescue ensures we fail open if there is an issue loading our library.
+# Unlikely but not impossible: a missing/corrupt distribution file, or a
+# SyntaxError in our lib.
+begin
+  require 'dash0/opentelemetry'
+  Dash0::OpenTelemetry.boot!
+rescue StandardError, ScriptError => e
+  warn "[Dash0 OpenTelemetry Distribution] Initialization failed: #{e.message}. " \
+       'OpenTelemetry data will not be sent to Dash0.'
+end

@@ -66,6 +66,32 @@ module Dash0
         refute result[:error], result[:error]
         refute result[:booted], 'distribution must stand down when OpenTelemetry SDK is already loaded'
       end
+
+      # A LoadError raised while requiring the SDK gems (e.g. a missing/incomplete
+      # injected bundle) must be caught, not propagated — otherwise it crashes the
+      # host application. LoadError is a ScriptError, so `rescue StandardError`
+      # alone would let it through.
+      def test_boot_fails_open_when_sdk_gems_cannot_be_loaded
+        result = run_in_subprocess('DASH0_OTEL_COLLECTOR_BASE_URL' => 'http://localhost:4318') do
+          require 'dash0/opentelemetry'
+          Dash0::OpenTelemetry::SdkConfiguration.define_singleton_method(:require_sdk_gems) do
+            raise LoadError, 'simulated missing gem bundle'
+          end
+
+          propagated = nil
+          begin
+            Dash0::OpenTelemetry.boot!
+          rescue StandardError, ScriptError => e
+            propagated = e.class.name
+          end
+
+          { propagated: propagated, booted: Dash0::OpenTelemetry::Boot.booted? }
+        end
+
+        refute result[:error], result[:error]
+        assert_nil result[:propagated], "boot! must not propagate: got #{result[:propagated]}"
+        refute result[:booted]
+      end
     end
   end
 end
