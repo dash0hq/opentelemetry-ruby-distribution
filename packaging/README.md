@@ -1,4 +1,12 @@
-# Injection smoke test (Docker)
+# Packaging
+
+`Gemfile` / `Gemfile.lock` define the **shipped closure** — the exact, pinned set
+of gems installed into the bundle the operator/injector mounts (resolved from the
+gemspec alone, isolated from dev/test tooling). Everything else here is the
+**injection smoke test** that verifies that closure builds and instruments
+correctly.
+
+## Injection smoke test (Docker)
 
 Verifies that the distribution loads and works **the way the operator/injector
 deploys it**, something the `rake` suite (which runs under Bundler) can't cover:
@@ -21,7 +29,7 @@ plus the mounted bundle's proto classes for decoding).
 ## Run
 
 ```sh
-test/docker/verify.sh
+packaging/verify.sh
 ```
 
 Requires Docker. Not part of `rake` (it needs Docker and network to build the
@@ -37,7 +45,7 @@ RubyGems. To pick up new compatible releases (e.g. after bumping a version
 constraint in `../../dash0-opentelemetry.gemspec`):
 
 ```sh
-BUNDLE_GEMFILE=test/docker/Gemfile bundle lock --update
+BUNDLE_GEMFILE=packaging/Gemfile bundle lock --update
 ```
 
 Dependabot tracks the upstream `opentelemetry-*` constraints (see
@@ -50,7 +58,7 @@ Runs on the host architecture only. To exercise amd64 on an arm64 host (or vice
 versa), build with emulation, e.g.:
 
 ```sh
-docker build --platform linux/amd64 --build-arg BASE=ruby:3.3-slim -t dash0-ruby-inject-glibc-amd64 test/docker
+docker build --platform linux/amd64 --build-arg BASE=ruby:3.3-slim -t dash0-ruby-inject-glibc-amd64 packaging
 ```
 
 Still out of scope here (belongs in the injector / operator end-to-end):

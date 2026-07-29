@@ -8,7 +8,7 @@ AllCops:
   NewCops: enable
   Exclude:
     - "test/apps/**/*"
-    - "test/docker/**/*"
+    - "packaging/**/*"
     - "vendor/**/*"
 
 Metrics/ModuleLength:

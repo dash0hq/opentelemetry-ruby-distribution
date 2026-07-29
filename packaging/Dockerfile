@@ -28,7 +28,7 @@ RUN if command -v apt-get >/dev/null; then \
 # (resolved via ./Gemfile against the gemspec) so the shipped closure is
 # reproducible across builds instead of floating on whatever's newest on
 # rubygems.org at build time. Update the pins with:
-#   BUNDLE_GEMFILE=test/docker/Gemfile bundle lock --update
+#   BUNDLE_GEMFILE=packaging/Gemfile bundle lock --update
 COPY dash0-opentelemetry.gem /tmp/dash0-opentelemetry.gem
 COPY Gemfile /tmp/packaging-Gemfile
 COPY Gemfile.lock /tmp/packaging-Gemfile.lock
