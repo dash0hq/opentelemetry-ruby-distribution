@@ -5,7 +5,7 @@
 
 require 'simplecov'
 SimpleCov.start do
-  add_filter '/test/'
+  skip '/test/' # SimpleCov 1.0 renamed add_filter to skip
 end
 
 require 'minitest/autorun'
@@ -40,7 +40,7 @@ module TestHelpers
     reader, writer = IO.pipe
     pid = fork do
       reader.close
-      SimpleCov.command_name "subprocess-#{Process.pid}" if defined?(SimpleCov) && SimpleCov.running
+      SimpleCov.command_name "subprocess-#{Process.pid}" if defined?(SimpleCov) && Coverage.running?
       env_vars.each { |key, value| ENV[key] = value }
 
       result =
@@ -52,7 +52,7 @@ module TestHelpers
 
       writer.write(Marshal.dump(result))
       writer.close
-      if defined?(SimpleCov) && SimpleCov.running
+      if defined?(SimpleCov) && Coverage.running?
         SimpleCov::ResultMerger.store_result(SimpleCov::Result.new(Coverage.result))
       end
       exit!(0)
