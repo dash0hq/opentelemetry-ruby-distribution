@@ -151,6 +151,31 @@ module Dash0
         refute result[:changed]
       end
 
+      def test_disallowed_lib_path_excludes_a_gem_from_the_load_path
+        # The escape hatch for the google-protobuf clash: DISALLOWED_LIB_PATH stops
+        # a bundled allowlist gem being wired, so OTel defers to the app's copy.
+        result = run_in_subprocess('DISALLOWED_LIB_PATH' => 'google-protobuf') do
+          require 'tmpdir'
+          require 'fileutils'
+          require 'dash0/opentelemetry'
+
+          mount = Dir.mktmpdir
+          %w[opentelemetry-sdk-1.11.0 google-protobuf-4.35.1 logger-1.7.0].each do |g|
+            FileUtils.mkdir_p(File.join(mount, 'gems', g, 'lib'))
+          end
+
+          ENV['OTEL_RUBY_ADDITIONAL_GEM_PATH'] = mount
+          before = $LOAD_PATH.dup
+          Dash0::OpenTelemetry::SdkConfiguration.wire_additional_gem_path
+          { added: ($LOAD_PATH - before).map { |path| File.basename(File.dirname(path)) } }
+        end
+
+        refute result[:error], result[:error]
+        refute_includes result[:added], 'google-protobuf-4.35.1', 'disallowed gem must not be wired'
+        assert_includes result[:added], 'logger-1.7.0', 'other allowlisted gems still wired'
+        assert_includes result[:added], 'opentelemetry-sdk-1.11.0', 'opentelemetry-* always wired'
+      end
+
       def test_does_not_override_an_explicit_endpoint
         result = run_in_subprocess(
           'DASH0_OTEL_COLLECTOR_BASE_URL' => 'http://localhost:4318',
