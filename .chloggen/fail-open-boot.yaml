@@ -1,0 +1,14 @@
+# One of: added, changed, deprecated, removed, fixed, security
+# (matches a Keep a Changelog https://keepachangelog.com/en/1.1.0/ section)
+change_type: fixed
+
+# A short, user-facing description of the change, as it should read in CHANGELOG.md.
+note: >-
+  Fail open when the OpenTelemetry gem bundle cannot be loaded: the distribution
+  now stands down instead of crashing the host application (a failed `require`
+  raises a `LoadError`, a `ScriptError`, which escaped the previous rescue). Also
+  puts `logger` on the load path so the SDK keeps loading on Ruby 4.0, where
+  `logger` is no longer a default gem.
+
+# The GitHub issue and/or pull request number(s) this change relates to, e.g. [8].
+issues: [20]

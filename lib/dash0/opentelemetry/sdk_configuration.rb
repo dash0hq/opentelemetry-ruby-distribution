@@ -27,10 +27,12 @@ module Dash0
       # gems on the load path itself.
       ADDITIONAL_GEM_PATH_ENV = 'OTEL_RUBY_ADDITIONAL_GEM_PATH'
 
-      # Non-`opentelemetry-*` gems from the bundle that must also be on the load
-      # path (OTLP exporter dependencies). Restricting to this set, rather than
-      # every gem in the mount, avoids shadowing the application's own gems.
-      ADDITIONAL_LIB_GEM_ALLOWLIST = %w[googleapis-common-protos-types google-protobuf].freeze
+      # Non-`opentelemetry-*` gems from the bundle that the SDK closure requires at
+      # load time and must therefore be on the load path: the OTLP exporter's
+      # protobuf deps, plus `logger` (required by `opentelemetry-api`; a default gem
+      # today, but a bundled gem from Ruby 4.0, at which point requiring it without
+      # this entry would fail). Kept minimal to avoid shadowing the app's own gems.
+      ADDITIONAL_LIB_GEM_ALLOWLIST = %w[googleapis-common-protos-types google-protobuf logger].freeze
 
       module_function
 

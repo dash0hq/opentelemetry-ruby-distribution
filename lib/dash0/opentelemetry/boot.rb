@@ -53,9 +53,11 @@ module Dash0
           InstrumentationInstaller.start
           Lifecycle.install
           Dash0::OpenTelemetry.log_debug("Distribution initialized (collector base URL: #{base_url}).")
-        rescue StandardError => e
+        rescue StandardError, ScriptError => e
           @booted = false
-          Dash0::OpenTelemetry.log_error("Initialization failed: #{e.message}")
+          Dash0::OpenTelemetry.log_error(
+            "Initialization failed: #{e.message}. OpenTelemetry data will not be sent to Dash0."
+          )
         end
 
         def disabled?

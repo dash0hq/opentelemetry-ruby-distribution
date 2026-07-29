@@ -107,6 +107,7 @@ module Dash0
             opentelemetry-sdk-1.11.0
             google-protobuf-4.35.1
             googleapis-common-protos-types-1.0.0
+            logger-1.7.0
             some-application-gem-2.0.0
           ].each { |g| FileUtils.mkdir_p(File.join(mount, 'gems', g, 'lib')) }
 
@@ -122,6 +123,7 @@ module Dash0
         assert_includes result[:added], 'opentelemetry-sdk-1.11.0'
         assert_includes result[:added], 'google-protobuf-4.35.1'
         assert_includes result[:added], 'googleapis-common-protos-types-1.0.0'
+        assert_includes result[:added], 'logger-1.7.0'
         refute_includes result[:added], 'some-application-gem-2.0.0'
       end
 

@@ -47,7 +47,7 @@ RUN cd /otel-ruby && \
     ln -s "gems/$(ls gems | grep '^dash0-opentelemetry-')/lib/dash0-opentelemetry.rb" \
       opentelemetry-auto-instrumentation.rb
 
-COPY mini_collector.rb app.rb run.sh /work/
+COPY mini_collector.rb app.rb plain_app.rb run.sh /work/
 RUN chmod +x /work/run.sh
 
 CMD ["/work/run.sh"]
