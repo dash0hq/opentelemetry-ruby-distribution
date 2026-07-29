@@ -8,7 +8,9 @@ source 'https://rubygems.org'
 gemspec
 
 group :test do
-  gem 'minitest', '~> 6.0'
+  # Capped below 6 because the Rails 7.2 stack below (activesupport) requires
+  # minitest < 6; a bump to 6.x makes the Gemfile unresolvable.
+  gem 'minitest', '~> 5.25'
   gem 'rake', '~> 13.2'
   gem 'rubocop', '~> 1.72'
   gem 'rubocop-minitest', '~> 0.36'

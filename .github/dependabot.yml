@@ -7,6 +7,10 @@ updates:
       interval: "weekly"
     ignore:
       - dependency-name: "opentelemetry-*"
+      # minitest 6+ conflicts with the Rails 7.2 test stack (activesupport
+      # requires minitest < 6); hold it on 5.x.
+      - dependency-name: "minitest"
+        versions: [">= 6"]
 
   # Packaging closure: the gems installed into the bundle the injector mounts.
   # This manifest owns OpenTelemetry bumps — it updates the gemspec constraints
