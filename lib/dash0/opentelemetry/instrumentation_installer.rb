@@ -5,29 +5,28 @@
 
 module Dash0
   module OpenTelemetry
-    # Installs per-library instrumentation lazily via a `TracePoint(:end)`: each
-    # instrumentation is installed as soon as its target library's classes finish
-    # being defined, plus one initial sweep for libraries already loaded. The
-    # TracePoint disables itself once every relevant library is present.
+    # Installs per-library instrumentation lazily via a `TracePoint(:end)`: an
+    # initial sweep for already-loaded libraries, then a re-sweep each time a class
+    # or module finishes being defined, so a library loaded after us is still
+    # caught.
     #
     # Ported, with light adaptation, from the upstream
     # `opentelemetry-auto-instrumentation` gem's `OTelInitializer`
     # (open-telemetry/opentelemetry-ruby-instrumentation), Apache-2.0.
     module InstrumentationInstaller
       @mutex = Mutex.new
-      @attempted = Set.new
       @trace_point = nil
 
       class << self
-        # Sweeps once for already-loaded libraries, then — if any relevant library
-        # is not yet present — installs a TracePoint(:end) that re-sweeps whenever a
-        # class or module finishes being defined.
+        # Sweeps once for already-loaded libraries, then — unless everything
+        # relevant is already installed — installs a TracePoint(:end) that
+        # re-sweeps whenever a class or module finishes being defined.
         #
         # @param [Array<String>] enabled_names canonical instrumentation names to
         #   restrict installation to; empty means "all registered".
         def start(enabled_names = enabled_instrumentation_names)
           sweep(enabled_names)
-          return if relevant_instrumentations(enabled_names).all?(&:present?)
+          return if relevant_instrumentations(enabled_names).all?(&:installed?)
 
           @trace_point = TracePoint.new(:end) { sweep(enabled_names) }
           @trace_point.enable
@@ -56,14 +55,13 @@ module Dash0
 
         private
 
-        # Installs present instrumentation, then disables the TracePoint once every
-        # relevant library is present (present ones have had their install attempt
-        # and will not change, so only not-yet-present ones are worth watching for).
+        # Installs every relevant instrumentation that is installable right now.
         def sweep(enabled_names)
           @mutex.synchronize do
-            relevant = relevant_instrumentations(enabled_names)
-            install_present(relevant)
-            @trace_point&.disable if relevant.all?(&:present?)
+            ready = relevant_instrumentations(enabled_names).select do |instrumentation|
+              ready_to_install?(instrumentation)
+            end
+            ::OpenTelemetry::Instrumentation.registry.install(ready.map(&:name)) unless ready.empty?
           end
         rescue StandardError => e
           if ENV['DASH0_DEBUG'] == 'true'
@@ -71,16 +69,13 @@ module Dash0
           end
         end
 
-        # Attempts to install each relevant instrumentation whose target library is
-        # present, at most once. A present instrumentation that does not install
-        # (disabled or incompatible) will not change, so retrying is pointless.
-        def install_present(relevant)
-          to_install = relevant.reject { |instrumentation| @attempted.include?(instrumentation.name) }
-                               .select(&:present?)
-          return if to_install.empty?
+        # Whether this instrumentation is installable right now.
+        def ready_to_install?(instrumentation)
+          return false if instrumentation.installed?
 
-          @attempted.merge(to_install.map(&:name))
-          ::OpenTelemetry::Instrumentation.registry.install(to_install.map(&:name))
+          instrumentation.present? && instrumentation.enabled? && instrumentation.compatible?
+        rescue StandardError, ScriptError
+          false
         end
 
         # The instrumentation instances this process should install: those named by
