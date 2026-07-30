@@ -94,6 +94,16 @@ stock OpenTelemetry SDK, exporters, and processors. Commonly useful ones:
 Standard batch-processor variables (`OTEL_BSP_*`, `OTEL_BLRP_*`) and
 `OTEL_SDK_DISABLED` are honored by the underlying SDK as well.
 
+### `DISALLOWED_LIB_PATH` (advanced)
+
+A comma-separated list of bundled non-`opentelemetry-*` gems the distribution
+should **not** put on the load path when injected. Its main use is the escape
+hatch for a `google-protobuf` version clash: when instrumenting an app that uses
+its own `google-protobuf` at runtime and breaks because the bundled version wins
+set `DISALLOWED_LIB_PATH=google-protobuf` so the distribution defers to the app's
+copy. Works while the app's protobuf is within the exporter's supported range;
+otherwise the distribution stands down rather than crash.
+
 ## Development
 
 See [CONTRIBUTING.md](CONTRIBUTING.md). Releasing is documented in

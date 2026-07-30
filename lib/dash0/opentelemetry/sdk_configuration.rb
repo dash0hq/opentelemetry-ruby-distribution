@@ -27,6 +27,10 @@ module Dash0
       # gems on the load path itself.
       ADDITIONAL_GEM_PATH_ENV = 'OTEL_RUBY_ADDITIONAL_GEM_PATH'
 
+      # Comma-separated allowlist gems to NOT put on the load path (see
+      # #disallowed_lib_names). Mirrors the upstream env var.
+      DISALLOWED_LIB_PATH_ENV = 'DISALLOWED_LIB_PATH'
+
       # Non-`opentelemetry-*` gems from the bundle that the SDK closure requires at
       # load time and must therefore be on the load path: the OTLP exporter's
       # protobuf deps, plus `logger` (required by `opentelemetry-api`; a default gem
@@ -77,17 +81,23 @@ module Dash0
         gem_path = ENV.fetch(ADDITIONAL_GEM_PATH_ENV, nil)
         return if gem_path.nil? || !Dir.exist?(gem_path)
 
+        allowlist = ADDITIONAL_LIB_GEM_ALLOWLIST - disallowed_lib_names
         Dir.glob(File.join(gem_path, 'gems', '*')).each do |gem_dir|
-          next unless on_load_path?(File.basename(gem_dir))
+          next unless on_load_path?(File.basename(gem_dir), allowlist)
 
           lib = File.join(gem_dir, 'lib')
           $LOAD_PATH.unshift(lib) if Dir.exist?(lib) && !$LOAD_PATH.include?(lib)
         end
       end
 
-      def on_load_path?(gem_dir_name)
+      # Gems opted out of via DISALLOWED_LIB_PATH (comma-separated).
+      def disallowed_lib_names
+        ENV.fetch(DISALLOWED_LIB_PATH_ENV, '').split(',').map(&:strip).reject(&:empty?)
+      end
+
+      def on_load_path?(gem_dir_name, allowlist)
         gem_dir_name.start_with?('opentelemetry-') ||
-          ADDITIONAL_LIB_GEM_ALLOWLIST.any? { |name| gem_dir_name.start_with?("#{name}-") }
+          allowlist.any? { |name| gem_dir_name.start_with?("#{name}-") }
       end
 
       # Adds a console span exporter *after* configure. It must not be added inside

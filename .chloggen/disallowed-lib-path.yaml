@@ -1,0 +1,14 @@
+# One of: added, changed, deprecated, removed, fixed, security
+# (matches a Keep a Changelog https://keepachangelog.com/en/1.1.0/ section)
+change_type: added
+
+# A short, user-facing description of the change, as it should read in CHANGELOG.md.
+note: >-
+  Honor `DISALLOWED_LIB_PATH` (comma-separated) to keep bundled non-`opentelemetry-*`
+  gems off the load path when injected. The escape hatch for a `google-protobuf`
+  version clash: `DISALLOWED_LIB_PATH=google-protobuf` makes the distribution defer
+  to the application's own protobuf. Restores parity with the upstream
+  auto-instrumentation gem.
+
+# The GitHub issue and/or pull request number(s) this change relates to, e.g. [8].
+issues: [21]
