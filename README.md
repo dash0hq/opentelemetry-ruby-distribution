@@ -72,9 +72,23 @@ distribution-specific switches and standard `OTEL_*` for the rest.
 ### Automatic service name
 
 If no service name has been configured, the distribution derives one from the
-program's entry point (e.g. the script or command name). This fallback is skipped
-when a service name is already set via `OTEL_SERVICE_NAME`, via a `service.name`
-in `OTEL_RESOURCE_ATTRIBUTES`, or when `DASH0_AUTOMATIC_SERVICE_NAME=false`.
+application's own identity, in order of preference:
+
+1. the app module in `config/application.rb` or `config/app.rb` (Rails, Hanami) —
+   e.g. `module DemoApp` → `demo_app`;
+2. `config.ru` — the `run <AppClass>` target or an inline application class
+   (modular Sinatra, Roda, plain Rack, single-file Rails);
+3. the entry script name, when it is not a known launcher/wrapper (e.g.
+   `ruby my_worker.rb` → `my_worker`).
+
+Because the distribution loads at interpreter startup, the entry point is usually
+a wrapper (`bundle`, `puma`, `rackup`, …); these are deliberately ignored rather
+than reported as the service name. When none of the above yields a name, the
+distribution reports nothing and the SDK's `unknown_service` default stands.
+
+This fallback is skipped entirely when a service name is already set via
+`OTEL_SERVICE_NAME`, via a `service.name` in `OTEL_RESOURCE_ATTRIBUTES`, or when
+`DASH0_AUTOMATIC_SERVICE_NAME=false`.
 
 ### `OTEL_*` variables
 
