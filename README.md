@@ -1,3 +1,5 @@
+[![Gem Version](https://badge.fury.io/rb/dash0-opentelemetry.svg?icon=si%3Arubygems)](https://badge.fury.io/rb/dash0-opentelemetry)
+
 # Dash0 OpenTelemetry Distribution for Ruby
 
 An opinionated, zero-code [OpenTelemetry](https://opentelemetry.io) distribution
