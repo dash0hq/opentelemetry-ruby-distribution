@@ -21,7 +21,45 @@ module Chloggen
 
   UNRELEASED_HEADER = '## [Unreleased]'
 
+  FRAGMENT_DIR = '.chloggen/'
+  TEMPLATE_PATH = '.chloggen/TEMPLATE.yaml'
+
+  # Repository paths whose contents reach users, and therefore need a changelog
+  # fragment when they change. A trailing slash marks a directory prefix.
+  #
+  # - `lib/` — the distribution's own code.
+  # - the gemspec — the version constraints on the upstream OpenTelemetry gems
+  #   the distribution ships.
+  # - `packaging/Gemfile.lock` — the exact closure installed into the bundle the
+  #   injector mounts (see packaging/README.md), so this also covers bumps of
+  #   the shipped gems' *transitive* dependencies, which never show up in the
+  #   gemspec.
+  #
+  # Everything else — the root Gemfile's dev/test tooling, CI, tests, docs — is
+  # invisible to users and needs no fragment. That is what keeps dependency
+  # updates we do not ship (dependabot's test and infra bumps) from demanding a
+  # changelog entry, while bumps of the shipped closure still do.
+  SHIPPED_PATHS = ['lib/', 'dash0-opentelemetry.gemspec', 'packaging/Gemfile.lock'].freeze
+
   class FragmentError < StandardError; end
+
+  # The subset of changed_files (repository-relative paths) that ships to users
+  # (see SHIPPED_PATHS).
+  def self.shipped_changes(changed_files)
+    changed_files.select do |path|
+      SHIPPED_PATHS.any? do |shipped|
+        shipped.end_with?('/') ? path.start_with?(shipped) : path == shipped
+      end
+    end
+  end
+
+  # The changelog fragments among changed_files, ignoring the template and the
+  # directory's own documentation.
+  def self.fragment_changes(changed_files)
+    changed_files.select do |path|
+      path.start_with?(FRAGMENT_DIR) && path.end_with?('.yaml') && path != TEMPLATE_PATH
+    end
+  end
 
   # Parses and validates a single fragment's YAML text, returning
   # { 'change_type' => ..., 'note' => ..., 'issues' => [...] }.

@@ -44,10 +44,13 @@ bundle exec rake chloggen:new[short-slug]
 
 Fill in the generated `.chloggen/<short-slug>.yaml` and commit it alongside
 your change. See [`.chloggen/README.md`](.chloggen/README.md) for the fragment
-format; CI validates fragments and requires one for changes under `lib/`
-(skippable with the `Skip changelog` label). CI also rejects PRs that edit
-`CHANGELOG.md` directly — it is only ever updated by `rake chloggen:update` at
-release time.
+format; CI validates fragments and requires one for changes that reach users —
+`lib/`, the gemspec's constraints on the OpenTelemetry gems we ship, and
+`packaging/Gemfile.lock` (the shipped closure, transitive dependencies included)
+— skippable with the `Skip changelog` label. Dependency updates we do not ship,
+such as dependabot bumps of the dev/test tooling in the root `Gemfile`, need no
+fragment. CI also rejects PRs that edit `CHANGELOG.md` directly — it is only
+ever updated by `rake chloggen:update` at release time.
 
 ## How it is used
 

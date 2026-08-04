@@ -15,6 +15,12 @@ def chloggen_fragment_paths
   Dir.glob(File.join(CHLOGGEN_DIR, '*.yaml')).reject { |path| File.basename(path) == 'TEMPLATE.yaml' }.sort
 end
 
+# Renders a message as a GitHub Actions error annotation when running in CI, so
+# the failure shows up on the pull request and not only in the job log.
+def chloggen_error(message)
+  ENV['GITHUB_ACTIONS'] == 'true' ? "::error::#{message}" : message
+end
+
 namespace :chloggen do
   desc 'Create a new changelog fragment: rake "chloggen:new[short-slug]"'
   task :new, [:slug] do |_t, args|
@@ -44,6 +50,35 @@ namespace :chloggen do
     end
     abort('Changelog fragment validation failed.') if failed
     puts "#{paths.size} changelog fragment(s) OK."
+  end
+
+  desc 'Check a PR\'s changed files carry a fragment: rake "chloggen:required[changed-files.txt]"'
+  task :required, [:changed_files] do |_t, args|
+    list_path = args[:changed_files].to_s
+    abort('Usage: rake "chloggen:required[path/to/changed-files.txt]"') if list_path.empty?
+    abort("#{list_path} does not exist") unless File.exist?(list_path)
+
+    changed_files = File.readlines(list_path, chomp: true).reject(&:empty?)
+    shipped = Chloggen.shipped_changes(changed_files)
+    if shipped.empty?
+      puts 'No changes to shipped code or shipped dependencies, no changelog fragment needed.'
+      next
+    end
+
+    puts 'Changes that reach users, and therefore need a changelog fragment:'
+    shipped.each { |path| puts "  #{path}" }
+
+    fragments = Chloggen.fragment_changes(changed_files)
+    if fragments.empty?
+      abort chloggen_error(
+        "This PR changes shipped code or shipped dependencies (#{shipped.join(', ')}) but adds no " \
+        ".chloggen/*.yaml fragment. Add one with 'bundle exec rake chloggen:new[slug]' (on a dependabot " \
+        "branch: push a fragment describing the dependency bump), or apply the 'Skip changelog' label."
+      )
+    end
+
+    puts 'Found changelog fragment(s):'
+    fragments.each { |path| puts "  #{path}" }
   end
 
   desc 'Merge changelog fragments into CHANGELOG.md and delete them'

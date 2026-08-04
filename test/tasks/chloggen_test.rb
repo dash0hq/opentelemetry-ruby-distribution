@@ -132,4 +132,49 @@ class ChloggenTest < Minitest::Test
 
     assert_equal '- A feature. (#1, #2)', Chloggen.bullet_for(fragment)
   end
+
+  def test_shipped_changes_includes_the_distributions_own_code
+    assert_equal ['lib/dash0/opentelemetry/boot.rb'],
+                 Chloggen.shipped_changes(['lib/dash0/opentelemetry/boot.rb', 'test/dash0/opentelemetry/boot_test.rb'])
+  end
+
+  def test_shipped_changes_includes_the_gemspecs_shipped_dependency_constraints
+    assert_equal ['dash0-opentelemetry.gemspec'], Chloggen.shipped_changes(['dash0-opentelemetry.gemspec'])
+  end
+
+  def test_shipped_changes_includes_the_packaging_lockfile_for_transitive_bumps
+    assert_equal ['packaging/Gemfile.lock'], Chloggen.shipped_changes(['packaging/Gemfile.lock'])
+  end
+
+  def test_shipped_changes_excludes_dev_and_test_dependency_updates
+    assert_empty Chloggen.shipped_changes(%w[Gemfile Gemfile.lock])
+  end
+
+  def test_shipped_changes_excludes_infrastructure_tests_and_docs
+    changed = %w[
+      .github/workflows/ci.yml
+      .github/dependabot.yml
+      Rakefile
+      tasks/chloggen.rake
+      test/test_helper.rb
+      packaging/Dockerfile
+      packaging/README.md
+      README.md
+    ]
+
+    assert_empty Chloggen.shipped_changes(changed)
+  end
+
+  def test_shipped_changes_does_not_match_paths_that_merely_share_a_prefix
+    assert_empty Chloggen.shipped_changes(%w[library/notes.md dash0-opentelemetry.gemspec.bak])
+  end
+
+  def test_fragment_changes_finds_added_fragments
+    assert_equal ['.chloggen/my-change.yaml'],
+                 Chloggen.fragment_changes(['lib/dash0/opentelemetry.rb', '.chloggen/my-change.yaml'])
+  end
+
+  def test_fragment_changes_ignores_the_template_and_the_readme
+    assert_empty Chloggen.fragment_changes(['.chloggen/TEMPLATE.yaml', '.chloggen/README.md'])
+  end
 end

@@ -44,17 +44,7 @@ jobs:
         run: |
           git fetch origin "$GITHUB_BASE_REF"
           git diff --name-only "origin/$GITHUB_BASE_REF...HEAD" > /tmp/changed-files.txt
-      - name: Determine whether this is a dependabot PR that doesn't touch shipped dependencies
-        id: dependabot-check
-        run: |
-          skip=false
-          if [ "$GITHUB_ACTOR" = "dependabot[bot]" ] && ! grep -qx 'dash0-opentelemetry.gemspec' /tmp/changed-files.txt; then
-            echo 'Dependabot PR that only touches dev/test dependencies, skipping changelog checks.'
-            skip=true
-          fi
-          echo "skip=$skip" >> "$GITHUB_OUTPUT"
       - name: Validate changelog fragments
-        if: steps.dependabot-check.outputs.skip != 'true'
         run: bundle exec rake chloggen:validate
       - name: Forbid manual edits to CHANGELOG.md
         run: |
@@ -64,20 +54,11 @@ jobs:
               "CHANGELOG.md is only updated by 'rake chloggen:update' at release time."
             exit 1
           fi
-      - name: Require a changelog fragment for changes under lib/
-        if: steps.dependabot-check.outputs.skip != 'true' && !contains(github.event.pull_request.labels.*.name, 'Skip changelog')
-        run: |
-          if ! grep -q '^lib/' /tmp/changed-files.txt; then
-            echo 'No changes under lib/, skipping changelog fragment check.'
-            exit 0
-          fi
-
-          fragments=$(grep '^\.chloggen/' /tmp/changed-files.txt | grep -v '^\.chloggen/TEMPLATE\.yaml$' || true)
-          if [ -z "$fragments" ]; then
-            echo "::error::This PR changes lib/ but adds no .chloggen/*.yaml fragment. Add one with" \
-              "'bundle exec rake chloggen:new[slug]', or apply the 'Skip changelog' label."
-            exit 1
-          fi
-
-          echo 'Found changelog fragment(s):'
-          echo "$fragments"
+      # Only changes that reach users need a fragment: lib/, the gemspec's
+      # constraints on the OpenTelemetry gems we ship, and packaging/Gemfile.lock
+      # (the shipped closure, transitive dependencies included). Dependency
+      # updates we do not ship - dependabot's test and infra bumps against the
+      # root Gemfile - therefore pass without one. See Chloggen::SHIPPED_PATHS.
+      - name: Require a changelog fragment for user-facing changes
+        if: "!contains(github.event.pull_request.labels.*.name, 'Skip changelog')"
+        run: bundle exec rake "chloggen:required[/tmp/changed-files.txt]"

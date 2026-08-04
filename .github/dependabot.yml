@@ -1,6 +1,7 @@
 version: 2
 updates:
-  # Root Gemfile: dev/test tooling only.
+  # Root Gemfile: dev/test tooling only. None of it ships, so PRs from this
+  # manifest need no changelog fragment (see .chloggen/README.md).
   - package-ecosystem: "bundler"
     directory: "/"
     schedule:
@@ -15,7 +16,9 @@ updates:
   # Packaging closure: the gems installed into the bundle the injector mounts.
   # This manifest owns OpenTelemetry bumps — it updates the gemspec constraints
   # and the committed Gemfile.lock together. `increase` prefers bumping the
-  # requirement to the tested version over widening the range.
+  # requirement to the tested version over widening the range. What this manifest
+  # changes does ship, so its PRs do need a changelog fragment pushed onto the
+  # dependabot branch (see .chloggen/README.md).
   - package-ecosystem: "bundler"
     directory: "/packaging"
     schedule:

@@ -29,9 +29,28 @@ Commit the fragment alongside your change.
 bundle exec rake chloggen:validate
 ```
 
-CI runs this on every pull request, and requires a fragment for changes under
-`lib/` (skippable with the `Skip changelog` label). CI also fails a PR that
-edits `CHANGELOG.md` directly.
+CI runs this on every pull request. It also requires a fragment for changes that
+reach users:
+
+- `lib/` — the distribution's own code;
+- `dash0-opentelemetry.gemspec` — the version constraints on the upstream
+  OpenTelemetry gems we ship;
+- `packaging/Gemfile.lock` — the exact closure installed into the bundle the
+  injector mounts, so bumps of the shipped gems' *transitive* dependencies are
+  covered too.
+
+Anything else — dev/test tooling in the root `Gemfile`, CI, tests, docs — needs
+no fragment, which is why dependency updates we do not ship (most dependabot
+PRs) pass without one. A bump of the shipped closure does need a fragment: push
+one onto the dependabot branch describing the update, or apply the
+`Skip changelog` label. To check the same rule locally:
+
+```sh
+git diff --name-only origin/main...HEAD > /tmp/changed-files.txt
+bundle exec rake "chloggen:required[/tmp/changed-files.txt]"
+```
+
+CI also fails a PR that edits `CHANGELOG.md` directly.
 
 ## Releasing
 

@@ -49,8 +49,13 @@ BUNDLE_GEMFILE=packaging/Gemfile bundle lock --update
 ```
 
 Dependabot tracks the upstream `opentelemetry-*` constraints (see
-`../../.github/dependabot.yml`) and will keep this lockfile in sync
-automatically.
+`../.github/dependabot.yml`) and will keep this lockfile in sync automatically.
+
+Because this lockfile *is* what users get, changes to it are user-facing: CI
+requires a changelog fragment for them (see [`../.chloggen/README.md`](../.chloggen/README.md)),
+including bumps that only move a transitive dependency. Dependabot cannot write
+that fragment, so push one onto its branch (or apply the `Skip changelog` label
+when the bump genuinely changes nothing users would notice).
 
 ## Scope and what it does *not* cover
 
