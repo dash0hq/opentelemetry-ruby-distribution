@@ -1,5 +1,9 @@
 # Getting started
 
+The primary use case for this distribution is injection into Ruby workloads by the Dash0 Kubernetes operator, which performs everything described on this page for you.
+If that is your intended use case, skip to [Kubernetes injection](kubernetes-injection).
+Read on to install `dash0-opentelemetry` as a standalone gem, for example for local development or a deployment outside Kubernetes.
+
 ## Install the gem
 
 Install `dash0-opentelemetry` **outside** the application's bundle:
