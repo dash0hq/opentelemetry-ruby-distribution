@@ -40,3 +40,10 @@ jobs:
         run: packaging/verify.sh
       - name: Build and publish to RubyGems
         uses: rubygems/release-gem@v1
+
+  sync-docs:
+    needs: release
+    uses: ./.github/workflows/sync-docs.yml
+    secrets: inherit
+    with:
+      dry-run: false

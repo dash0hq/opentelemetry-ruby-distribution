@@ -1,0 +1,59 @@
+# SPDX-FileCopyrightText: Copyright 2026 Dash0 Inc.
+# SPDX-License-Identifier: Apache-2.0
+
+# Configuration for dash0hq/sync-docs-action: controls how docs/*.md are
+# transformed and where they land in dash0hq/dash0-website.
+
+common:
+  - description: Strip the leading H1 heading (the frontmatter title replaces it on the website).
+    type: replace-regex
+    find: '^# [^\n]*\n'
+    replace: ""
+
+  - description: Mark pages as auto-generated from the source repository.
+    type: prepend
+    content: |
+      > **Note:** This page is auto-generated from the [opentelemetry-ruby-distribution](https://github.com/dash0hq/opentelemetry-ruby-distribution) repository.
+
+files:
+  - source: docs/overview.md
+    target: dash0/opentelemetry/distributions/ruby/overview.md
+    title: Dash0 OpenTelemetry Ruby Distribution
+    description: Overview of the Dash0 OpenTelemetry distribution for Ruby — zero-code instrumentation loaded via RUBYOPT, with full contrib instrumentation coverage.
+
+  - source: docs/getting-started.md
+    target: dash0/opentelemetry/distributions/ruby/getting-started.md
+    title: Getting Started
+    description: Install the Dash0 OpenTelemetry Ruby distribution and send your first traces, metrics, and logs in minutes.
+
+  - source: docs/configuration.md
+    target: dash0/opentelemetry/distributions/ruby/configuration.md
+    title: Configuration
+    description: All Dash0-specific and standard OpenTelemetry environment variables for the Ruby distribution.
+
+  - source: docs/auto-instrumentation.md
+    target: dash0/opentelemetry/distributions/ruby/auto-instrumentation.md
+    title: Auto-instrumentation
+    description: The full set of Ruby libraries and frameworks automatically instrumented by the Dash0 OpenTelemetry Ruby distribution.
+
+  - source: docs/resource-detection.md
+    target: dash0/opentelemetry/distributions/ruby/resource-detection.md
+    title: Resource Detection
+    description: Built-in resource detectors for distribution metadata, Kubernetes pod UID, and automatic service name derivation.
+
+  - source: docs/kubernetes-injection.md
+    target: dash0/opentelemetry/distributions/ruby/kubernetes-injection.md
+    title: Kubernetes Injection
+    description: How the Dash0 Ruby distribution is injected into Kubernetes workloads via RUBYOPT, with Ruby version gating, double-instrumentation guards, and graceful stand-down.
+
+# Fail if any docs/*.md file is not listed above, to catch forgotten entries.
+coverage:
+  include:
+    - "docs/*.md"
+
+nav:
+  target: dash0/opentelemetry/distributions/ruby/nav.json
+  order: 67
+  id: opentelemetry-ruby-distribution
+  parentPath: Dash0 Distributions
+  title: Ruby
