@@ -18,7 +18,7 @@ common:
 files:
   - source: docs/overview.md
     target: dash0/opentelemetry/distributions/ruby/overview.md
-    title: Dash0 OpenTelemetry Ruby Distribution
+    title: About the Dash0 OpenTelemetry Ruby Distribution
     description: Overview of the Dash0 OpenTelemetry distribution for Ruby — zero-code instrumentation loaded via RUBYOPT, with full contrib instrumentation coverage.
 
   - source: docs/getting-started.md
