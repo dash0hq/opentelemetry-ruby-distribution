@@ -43,11 +43,16 @@ tag on a merged commit and (b) an explicit human approval on the environment.
    git push origin main --tags
    ```
 
-6. The `Release` workflow runs the full verification (`bundle exec rake`) and, if
-   it passes, builds and publishes the gem to RubyGems via trusted publishing.
+6. The `Release` workflow runs the full verification (`bundle exec rake`), builds
+   and publishes the gem to RubyGems via trusted publishing, and publishes a
+   GitHub release for the tag with that version's `CHANGELOG.md` section as
+   release notes and the built `.gem` attached as a release asset.
 
 ## After a release
 
-Consuming the new version in the Dash0 operator is a one-line change in the
-operator's Ruby build stage (install `dash0-opentelemetry` and point the injector
-entry symlink at it) — tracked in the operator repository, not here.
+The Dash0 operator's weekly `Check for Dash0 Ruby Distribution Updates`
+workflow discovers the new version via `gh release list` against this
+repository and opens a PR bumping the pinned version, so no manual step is
+required there. That PR still updates the operator's Ruby build stage (install
+`dash0-opentelemetry` and point the injector entry symlink at it) — tracked in
+the operator repository, not here.
