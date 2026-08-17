@@ -40,6 +40,31 @@ jobs:
         run: packaging/verify.sh
       - name: Build and publish to RubyGems
         uses: rubygems/release-gem@v1
+      - name: Create GitHub release
+        # The Dash0 operator's weekly update workflow discovers new versions via
+        # `gh release list`, which only sees published GitHub releases, not bare
+        # tags. Extract this version's CHANGELOG.md section as the release notes
+        # and attach the built .gem (from the rubygems/release-gem step above)
+        # for offline installs and artifact verification.
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          version="${GITHUB_REF_NAME#v}"
+          awk -v header="## [$version]" '
+            index($0, header) == 1 { found=1; next }
+            found && /^## \[/ { exit }
+            found { print }
+          ' CHANGELOG.md > /tmp/release-notes.md
+
+          if [ ! -s /tmp/release-notes.md ]; then
+            echo "::error::No CHANGELOG.md section found for $GITHUB_REF_NAME (looked for '## [$version]')."
+            exit 1
+          fi
+
+          gh release create "$GITHUB_REF_NAME" \
+            --title "$GITHUB_REF_NAME" \
+            --notes-file /tmp/release-notes.md \
+            pkg/*.gem
 
   sync-docs:
     needs: release
