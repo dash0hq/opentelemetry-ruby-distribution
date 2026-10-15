@@ -175,6 +175,26 @@ module Dash0
           end
         end
 
+        # --- declarative configuration -----------------------------------------
+
+        def test_declarative_uses_otel_service_name
+          with_env(clear_service_name_env.merge('OTEL_SERVICE_NAME' => ' explicit ')) do
+            assert_equal 'explicit', ServiceNameFallback.send(:declarative_service_name, '/path/to/my_app.rb', nil)
+          end
+        end
+
+        def test_declarative_opted_out_disables_fallback
+          with_env(clear_service_name_env.merge('DASH0_AUTOMATIC_SERVICE_NAME' => 'false')) do
+            assert_nil ServiceNameFallback.send(:declarative_service_name, '/path/to/my_app.rb', nil)
+          end
+        end
+
+        def test_declarative_ignores_resource_attributes
+          with_env(clear_service_name_env.merge('OTEL_RESOURCE_ATTRIBUTES' => 'service.name=explicit')) do
+            assert_equal 'my_app', ServiceNameFallback.send(:declarative_service_name, '/path/to/my_app.rb', nil)
+          end
+        end
+
         private
 
         def with_project(files)

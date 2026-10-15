@@ -30,6 +30,16 @@ module TestHelpers
     end
   end
 
+  # Writes a declarative configuration file that lives as long as the test.
+  def write_config_file(content)
+    require 'tempfile'
+    file = Tempfile.new(['otel-config', '.yaml'])
+    file.write(content)
+    file.close
+    (@config_files ||= []) << file
+    file.path
+  end
+
   # Runs the given block in a forked subprocess with the supplied environment,
   # returning whatever (marshalable) value the block produced. Booting the SDK
   # mutates global process state, so tests that exercise a full boot run in a

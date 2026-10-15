@@ -3,12 +3,16 @@
 The distribution builds the OpenTelemetry resource from several detectors applied in order.
 Later detectors take precedence on attribute key conflicts, except for the distribution identity attributes, which are always applied last.
 
+With a [declarative configuration file](configuration#declarative-configuration), the file defines the resource instead, and the detectors below apply only when the file names them.
+
 ## Upstream detectors
 
 The SDK adds process and SDK attributes automatically.
 The upstream `container` detector (`opentelemetry-resource-detector-container`) adds `container.id` by reading the container's cgroup file.
 
 ## Dash0 detectors
+
+In a configuration file, these detectors are named `dash0_distribution`, `dash0_kubernetes`, and `dash0_service_name`.
 
 ### Distribution identity
 
@@ -44,3 +48,6 @@ Known wrappers (`bundle`, `puma`, `rackup`, `rails`, `sidekiq`, and others) are 
 When none of these sources yields a useful name, the detector adds no attribute and the SDK's `unknown_service` default stands.
 
 The fallback is skipped entirely when `OTEL_SERVICE_NAME` is set, when `service.name` appears in `OTEL_RESOURCE_ATTRIBUTES`, or when `DASH0_AUTOMATIC_SERVICE_NAME=false`.
+
+With a configuration file, the fallback applies only when the file sets no `service.name`, or sets it to `unknown_service`.
+It then uses `OTEL_SERVICE_NAME` if set, and ignores `OTEL_RESOURCE_ATTRIBUTES`.

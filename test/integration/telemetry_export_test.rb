@@ -39,6 +39,34 @@ module Dash0
           assert_equal 'telemetry_app', attributes['service.name']
         end
       end
+
+      def test_exports_all_three_signals_from_a_config_file
+        with_collector do |collector|
+          _stdout, stderr, status = run_distro_app(
+            'telemetry_app.rb',
+            env: {
+              'OTEL_CONFIG_FILE' => File.join(REPO_ROOT, 'test', 'fixtures', 'otel-config.yaml'),
+              'OTEL_EXPORTER_OTLP_ENDPOINT' => collector.base_url
+            }
+          )
+
+          assert_predicate status, :success?, "app exited non-zero:\n#{stderr}"
+
+          wait_until do
+            collector.span_names.include?('work') &&
+              collector.metric_names.include?('app.requests') &&
+              !collector.log_bodies.empty?
+          end
+
+          assert_includes collector.log_bodies, 'hello from telemetry-app'
+
+          attributes = collector.resource_attributes
+
+          assert_equal 'dash0-ruby', attributes['telemetry.distro.name']
+          assert_equal 'telemetry_app', attributes['service.name']
+          refute_match(/unknown resource detector|Failed to build/, stderr)
+        end
+      end
     end
   end
 end
