@@ -70,7 +70,7 @@ module Dash0
         model = parse_config_file(path)
         raise "could not load the configuration file #{path}" unless model
 
-        sdk = ::OpenTelemetry::Config.install(::OpenTelemetry::Config.create(model))
+        sdk = DeclarativeConfig.install(DeclarativeConfig.create(model))
         sdk unless sdk.equal?(::OpenTelemetry::Config::NOOP_SDK)
       end
 
