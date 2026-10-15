@@ -46,14 +46,26 @@ export RUBYOPT="-r dash0-opentelemetry"
 rails server
 ```
 
+## Use a configuration file
+
+Instead of `DASH0_OTEL_COLLECTOR_BASE_URL`, point `OTEL_CONFIG_FILE` at a declarative configuration file:
+
+```sh
+export OTEL_CONFIG_FILE=/path/to/otel-config.yaml
+export RUBYOPT="-r dash0-opentelemetry"
+ruby your_app.rb
+```
+
+See [Declarative configuration](configuration#declarative-configuration) for the file format.
+
 ## Startup sequence
 
 When the application starts, the distribution:
 
 1. Checks the Ruby version; stands down cleanly on Ruby older than 3.3.
 2. Checks `DASH0_DISABLE`; stands down if set to `true`.
-3. Checks `DASH0_OTEL_COLLECTOR_BASE_URL`; stands down if unset.
+3. Checks `OTEL_CONFIG_FILE` and `DASH0_OTEL_COLLECTOR_BASE_URL`; stands down if neither is set.
 4. Checks whether the OpenTelemetry SDK is already loaded; stands down if so, to avoid double instrumentation.
-5. Configures the OpenTelemetry SDK with OTLP/HTTP exporters and Dash0 resource attributes.
+5. Configures the OpenTelemetry SDK from the configuration file if `OTEL_CONFIG_FILE` is set, otherwise with OTLP/HTTP exporters and Dash0 resource attributes.
 6. Installs all supported instrumentations for libraries already loaded, then installs a `TracePoint` to catch libraries loaded later.
 7. Installs lifecycle handlers (SIGTERM/SIGINT flush if configured; `at_exit` flush by default).

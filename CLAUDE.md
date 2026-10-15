@@ -25,6 +25,10 @@ Key modules:
   `at_exit` flush.
 - `lib/dash0/opentelemetry/resource/` — three custom resource detectors:
   `distribution.rb`, `kubernetes_pod.rb`, `service_name_fallback.rb`.
+- `lib/dash0/opentelemetry/declarative_config.rb` and `declarative_config/` —
+  `OTEL_CONFIG_FILE` support on top of `opentelemetry-config`: copies of
+  unreleased upstream changes (env substitution, meter and logger providers)
+  and the patch that lets a file name the Dash0 resource detectors.
 
 ## Coding conventions
 
@@ -47,9 +51,9 @@ When the code changes, update the corresponding doc.
 | --- | --- |
 | `docs/overview.md` | `README.md`, `lib/dash0-opentelemetry.rb`, `dash0-opentelemetry.gemspec` |
 | `docs/getting-started.md` | `README.md` |
-| `docs/configuration.md` | `lib/dash0/opentelemetry/environment.rb`, `lib/dash0/opentelemetry/sdk_configuration.rb`, `lib/dash0/opentelemetry/lifecycle.rb`, `lib/dash0/opentelemetry/resource/service_name_fallback.rb` |
+| `docs/configuration.md` | `lib/dash0/opentelemetry/environment.rb`, `lib/dash0/opentelemetry/sdk_configuration.rb`, `lib/dash0/opentelemetry/lifecycle.rb`, `lib/dash0/opentelemetry/resource/service_name_fallback.rb`, `lib/dash0/opentelemetry/declarative_config.rb`, `lib/dash0/opentelemetry/declarative_config/`, `test/fixtures/otel-config.yaml` |
 | `docs/auto-instrumentation.md` | `packaging/Gemfile.lock`, `lib/dash0/opentelemetry/instrumentation_installer.rb` |
-| `docs/resource-detection.md` | `lib/dash0/opentelemetry/resource/distribution.rb`, `lib/dash0/opentelemetry/resource/kubernetes_pod.rb`, `lib/dash0/opentelemetry/resource/service_name_fallback.rb`, `lib/dash0/opentelemetry/sdk_configuration.rb` |
+| `docs/resource-detection.md` | `lib/dash0/opentelemetry/resource/distribution.rb`, `lib/dash0/opentelemetry/resource/kubernetes_pod.rb`, `lib/dash0/opentelemetry/resource/service_name_fallback.rb`, `lib/dash0/opentelemetry/sdk_configuration.rb`, `lib/dash0/opentelemetry/declarative_config/resource_detectors.rb` |
 | `docs/kubernetes-injection.md` | `lib/dash0-opentelemetry.rb`, `lib/dash0/opentelemetry/boot.rb`, `lib/dash0/opentelemetry/sdk_configuration.rb` |
 
 ## Rules for updating docs
@@ -80,6 +84,10 @@ awk '/^    opentelemetry-instrumentation-(all|rails) \(/{f=1;next} /^    [^ ]/{f
 `aws_lambda` is omitted from the tables because it requires wrapping the handler manually.
 
 Never update the instrumentation tables by hand.
+
+**When the example configuration file in `docs/configuration.md` changes:**
+Update `test/fixtures/otel-config.yaml` to match; the integration tests boot from
+it and a unit test checks the two are identical.
 
 **When injection behavior changes** (startup gates, RUBYOPT mechanism,
 OTEL_RUBY_ADDITIONAL_GEM_PATH, DISALLOWED_LIB_PATH):

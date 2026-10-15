@@ -1,0 +1,13 @@
+# One of: added, changed, deprecated, removed, fixed, security
+# (matches a Keep a Changelog https://keepachangelog.com/en/1.1.0/ section)
+change_type: added
+
+# A short, user-facing description of the change, as it should read in CHANGELOG.md.
+note: >-
+  Configure the OpenTelemetry SDK from a declarative configuration file by setting
+  `OTEL_CONFIG_FILE`, as an alternative to `DASH0_OTEL_COLLECTOR_BASE_URL`. The file
+  supports traces, metrics, logs, and `${VARIABLE}` substitution, and can name the
+  `dash0_distribution`, `dash0_kubernetes`, and `dash0_service_name` resource detectors.
+
+# The GitHub issue and/or pull request number(s) this change relates to, e.g. [8].
+issues: [32]
