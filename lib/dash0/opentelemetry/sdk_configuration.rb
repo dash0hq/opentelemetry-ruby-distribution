@@ -66,6 +66,7 @@ module Dash0
       def apply_config_file(path)
         require_sdk_gems
         require 'opentelemetry-config'
+        DeclarativeConfig::ResourceDetectors.install
 
         model = parse_config_file(path)
         raise "could not load the configuration file #{path}" unless model
