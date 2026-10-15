@@ -55,6 +55,25 @@ module Dash0
         install_debug_span_printer if Environment.opted_in?(DEBUG_PRINT_SPANS_ENV)
       end
 
+      # Configures the SDK from a declarative configuration file. The file is the
+      # complete SDK configuration, so the env-driven defaults, the Dash0 resource,
+      # and the debug span printer do not apply.
+      #
+      # @param path [String] path to the declarative configuration file
+      # @return [OpenTelemetry::Config::RubySDK, nil] the installed SDK, or nil
+      #   when the file disables it
+      # @raise [RuntimeError] when the file cannot be loaded
+      def apply_config_file(path)
+        require_sdk_gems
+        require 'opentelemetry-config'
+
+        model = ::OpenTelemetry::Config.parse(path)
+        raise "could not load the configuration file #{path}" unless model
+
+        sdk = ::OpenTelemetry::Config.install(::OpenTelemetry::Config.create(model))
+        sdk unless sdk.equal?(::OpenTelemetry::Config::NOOP_SDK)
+      end
+
       def configure_exporter_defaults(base_url)
         Environment.set_default('OTEL_EXPORTER_OTLP_ENDPOINT', base_url)
         Environment.set_default('OTEL_EXPORTER_OTLP_PROTOCOL', DEFAULT_PROTOCOL)

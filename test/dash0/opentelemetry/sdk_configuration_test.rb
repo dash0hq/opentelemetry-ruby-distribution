@@ -76,6 +76,77 @@ module Dash0
         assert_includes result[:log_bodies], 'hello'
       end
 
+      def test_config_file_boot_configures_sdk_from_the_file
+        result = run_in_subprocess('OTEL_CONFIG_FILE' => write_config_file(<<~YAML)) do
+          file_format: "1.0"
+          resource:
+            attributes:
+              - name: service.name
+                value: from-file
+          tracer_provider:
+            processors:
+              - simple:
+                  exporter:
+                    console: {}
+          propagator:
+            composite:
+              - tracecontext:
+        YAML
+          require 'dash0-opentelemetry'
+          tracer_provider = ::OpenTelemetry.tracer_provider
+          resource_attributes = tracer_provider.instance_variable_get(:@resource).attribute_enumerator.to_h
+          processors = tracer_provider.instance_variable_get(:@span_processors)
+
+          {
+            booted: Dash0::OpenTelemetry::Boot.booted?,
+            tracer_provider_class: tracer_provider.class.name,
+            exporter_classes: processors.map { |p| p.instance_variable_get(:@span_exporter).class.name },
+            service_name: resource_attributes['service.name'],
+            propagation_fields: ::OpenTelemetry.propagation.fields,
+            endpoint: ENV.fetch('OTEL_EXPORTER_OTLP_ENDPOINT', nil)
+          }
+        end
+
+        refute result[:error], result[:error]
+        assert result[:booted]
+        assert_equal 'OpenTelemetry::SDK::Trace::TracerProvider', result[:tracer_provider_class]
+        assert_equal ['OpenTelemetry::SDK::Trace::Export::ConsoleSpanExporter'], result[:exporter_classes]
+        assert_equal 'from-file', result[:service_name]
+        assert_includes result[:propagation_fields], 'traceparent'
+        assert_nil result[:endpoint], 'env-driven exporter defaults must not apply in config file mode'
+      end
+
+      def test_config_file_that_disables_the_sdk_installs_nothing
+        result = run_in_subprocess('OTEL_CONFIG_FILE' => write_config_file(<<~YAML)) do
+          file_format: "1.0"
+          disabled: true
+        YAML
+          require 'dash0-opentelemetry'
+          { tracer_provider_class: ::OpenTelemetry.tracer_provider.class.name }
+        end
+
+        refute result[:error], result[:error]
+        refute_equal 'OpenTelemetry::SDK::Trace::TracerProvider', result[:tracer_provider_class]
+      end
+
+      def test_config_file_that_cannot_be_loaded_fails_open
+        result = run_in_subprocess('OTEL_CONFIG_FILE' => '/nonexistent/otel.yaml') do
+          require 'stringio'
+          $stderr = StringIO.new
+          require 'dash0-opentelemetry'
+          {
+            booted: Dash0::OpenTelemetry::Boot.booted?,
+            tracer_provider_class: ::OpenTelemetry.tracer_provider.class.name,
+            stderr: $stderr.string
+          }
+        end
+
+        refute result[:error], result[:error]
+        refute result[:booted]
+        refute_equal 'OpenTelemetry::SDK::Trace::TracerProvider', result[:tracer_provider_class]
+        assert_includes result[:stderr], 'could not load the configuration file /nonexistent/otel.yaml'
+      end
+
       def test_debug_print_spans_adds_console_processor_without_disabling_otlp
         result = run_in_subprocess(
           'DASH0_OTEL_COLLECTOR_BASE_URL' => 'http://localhost:4318',
@@ -187,6 +258,18 @@ module Dash0
 
         refute result[:error], result[:error]
         assert_equal 'http://custom:4318', result[:endpoint]
+      end
+
+      private
+
+      # Writes a declarative configuration file that lives as long as the test.
+      def write_config_file(content)
+        require 'tempfile'
+        file = Tempfile.new(['otel-config', '.yaml'])
+        file.write(content)
+        file.close
+        (@config_files ||= []) << file
+        file.path
       end
     end
   end
