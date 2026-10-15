@@ -116,6 +116,49 @@ module Dash0
         assert_nil result[:endpoint], 'env-driven exporter defaults must not apply in config file mode'
       end
 
+      def test_config_file_substitutes_environment_variables
+        result = run_in_subprocess(
+          'OTEL_CONFIG_FILE' => write_config_file(<<~YAML),
+            file_format: "1.0"
+            resource:
+              attributes:
+                - name: service.name
+                  value: ${DASH0_TEST_SERVICE_NAME:-fallback}
+                - name: deployment.environment.name
+                  value: ${DASH0_TEST_UNSET:-staging}
+            tracer_provider:
+              processors:
+                - simple:
+                    exporter:
+                      console: {}
+          YAML
+          'DASH0_TEST_SERVICE_NAME' => 'from-env'
+        ) do
+          require 'dash0-opentelemetry'
+          resource = ::OpenTelemetry.tracer_provider.instance_variable_get(:@resource)
+          resource.attribute_enumerator.to_h.slice('service.name', 'deployment.environment.name')
+        end
+
+        refute result[:error], result[:error]
+        assert_equal({ 'service.name' => 'from-env', 'deployment.environment.name' => 'staging' }, result)
+      end
+
+      def test_config_file_with_an_invalid_substitution_fails_open
+        result = run_in_subprocess('OTEL_CONFIG_FILE' => write_config_file(<<~YAML)) do
+          file_format: "1.0"
+          disabled: ${DASH0_TEST_UNSET:?error}
+        YAML
+          require 'stringio'
+          $stderr = StringIO.new
+          require 'dash0-opentelemetry'
+          { booted: Dash0::OpenTelemetry::Boot.booted?, stderr: $stderr.string }
+        end
+
+        refute result[:error], result[:error]
+        refute result[:booted]
+        assert_includes result[:stderr], 'invalid substitution reference ${DASH0_TEST_UNSET:?error}'
+      end
+
       def test_config_file_that_disables_the_sdk_installs_nothing
         result = run_in_subprocess('OTEL_CONFIG_FILE' => write_config_file(<<~YAML)) do
           file_format: "1.0"
