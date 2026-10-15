@@ -302,18 +302,6 @@ module Dash0
         refute result[:error], result[:error]
         assert_equal 'http://custom:4318', result[:endpoint]
       end
-
-      private
-
-      # Writes a declarative configuration file that lives as long as the test.
-      def write_config_file(content)
-        require 'tempfile'
-        file = Tempfile.new(['otel-config', '.yaml'])
-        file.write(content)
-        file.close
-        (@config_files ||= []) << file
-        file.path
-      end
     end
   end
 end
