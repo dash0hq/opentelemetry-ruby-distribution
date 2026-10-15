@@ -68,16 +68,16 @@ is updated in `dash0-opentelemetry.gemspec` and `packaging/Gemfile.lock` is
 regenerated):
 Derive `docs/auto-instrumentation.md`'s instrumentation tables from
 `packaging/Gemfile.lock`.
-The direct dependencies of `opentelemetry-instrumentation-all` are the canonical
-source; extract them with:
+The direct dependencies of `opentelemetry-instrumentation-all` and
+`opentelemetry-instrumentation-rails` are the canonical source; extract them with:
 
 ```sh
-grep -A 200 'opentelemetry-instrumentation-all (' packaging/Gemfile.lock \
-  | grep -E '^\s+opentelemetry-instrumentation-' \
-  | sed 's/.*opentelemetry-instrumentation-//' \
-  | sed 's/ (.*//' \
-  | sort
+awk '/^    opentelemetry-instrumentation-(all|rails) \(/{f=1;next} /^    [^ ]/{f=0} f' packaging/Gemfile.lock \
+  | sed 's/.*opentelemetry-instrumentation-//; s/ (.*//' \
+  | sort -u
 ```
+
+`aws_lambda` is omitted from the tables because it requires wrapping the handler manually.
 
 Never update the instrumentation tables by hand.
 

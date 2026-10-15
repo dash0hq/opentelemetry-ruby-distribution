@@ -1,0 +1,11 @@
+# One of: added, changed, deprecated, removed, fixed, security
+# (matches a Keep a Changelog https://keepachangelog.com/en/1.1.0/ section)
+change_type: added
+
+# A short, user-facing description of the change, as it should read in CHANGELOG.md.
+note: >-
+  Instrument the `openai` gem automatically, by updating
+  `opentelemetry-instrumentation-all` to 0.99.0.
+
+# The GitHub issue and/or pull request number(s) this change relates to, e.g. [8].
+issues: [31]

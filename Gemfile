@@ -12,7 +12,7 @@ group :test do
   # minitest < 6; a bump to 6.x makes the Gemfile unresolvable.
   gem 'minitest', '~> 5.25'
   gem 'rake', '~> 13.2'
-  gem 'rubocop', '~> 1.72'
+  gem 'rubocop', '~> 1.90'
   gem 'rubocop-minitest', '~> 0.36'
   gem 'rubocop-performance', '~> 1.23'
   gem 'rubocop-rake', '~> 0.6'
