@@ -63,8 +63,7 @@ module TestHelpers
     reader.close
     Process.wait(pid)
 
-    # rubocop:disable Security/MarshalLoad
+    # rubocop:disable-next Security/MarshalLoad
     Marshal.load(data)
-    # rubocop:enable Security/MarshalLoad
   end
 end
