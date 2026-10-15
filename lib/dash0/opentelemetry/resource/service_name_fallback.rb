@@ -28,6 +28,11 @@ module Dash0
       # `OTEL_SERVICE_NAME` or a `service.name` in `OTEL_RESOURCE_ATTRIBUTES`, or
       # when opted out with `DASH0_AUTOMATIC_SERVICE_NAME=false`.
       #
+      # When a configuration file names this detector, the caller applies it only
+      # if the file produces no service name. `OTEL_SERVICE_NAME` is then used if
+      # set, and `OTEL_RESOURCE_ATTRIBUTES` is not consulted, since it only applies
+      # under a configuration file through the file's own references.
+      #
       # `OpenTelemetry::SDK` must be loaded before `detect` is called.
       module ServiceNameFallback
         AUTOMATIC_SERVICE_NAME_ENV = 'DASH0_AUTOMATIC_SERVICE_NAME'
@@ -58,9 +63,11 @@ module Dash0
         extend self
 
         # The detector interface: the only public method.
-        def detect
+        #
+        # @param declarative [Boolean] whether a configuration file names this detector
+        def detect(declarative: false)
           attributes = {}
-          name = fallback_service_name
+          name = declarative ? declarative_service_name : fallback_service_name
           attributes[SERVICE_NAME_KEY] = name if name
           ::OpenTelemetry::SDK::Resources::Resource.create(attributes)
         end
@@ -71,6 +78,15 @@ module Dash0
         #   already configured, the fallback is opted out, or none can be derived.
         def fallback_service_name(program_name = $PROGRAM_NAME, root = app_root)
           return nil if service_name_configured?
+
+          name_from_project(root) || derive_from_program_name(program_name)
+        end
+
+        # @return [String, nil] `OTEL_SERVICE_NAME` when set, otherwise the derived
+        #   service name, or nil when the fallback is opted out or none can be derived.
+        def declarative_service_name(program_name = $PROGRAM_NAME, root = app_root)
+          return ENV.fetch('OTEL_SERVICE_NAME').strip if otel_service_name_set?
+          return nil if opted_out?
 
           name_from_project(root) || derive_from_program_name(program_name)
         end

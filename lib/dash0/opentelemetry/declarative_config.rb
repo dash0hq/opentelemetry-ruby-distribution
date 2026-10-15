@@ -7,6 +7,7 @@ require 'dash0/opentelemetry/declarative_config/env_substitution'
 require 'dash0/opentelemetry/declarative_config/logs'
 require 'dash0/opentelemetry/declarative_config/metrics'
 require 'dash0/opentelemetry/declarative_config/metric_views'
+require 'dash0/opentelemetry/declarative_config/resource_detectors'
 
 module Dash0
   module OpenTelemetry
