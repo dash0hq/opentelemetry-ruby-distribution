@@ -4,6 +4,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 require 'dash0/opentelemetry/declarative_config/env_substitution'
+require 'dash0/opentelemetry/declarative_config/logs'
 require 'dash0/opentelemetry/declarative_config/metrics'
 require 'dash0/opentelemetry/declarative_config/metric_views'
 
@@ -25,6 +26,7 @@ module Dash0
         return sdk if sdk.equal?(::OpenTelemetry::Config::NOOP_SDK)
 
         sdk.meter_provider ||= Metrics.build_meter_provider(model.meter_provider, sdk.resource)
+        sdk.logger_provider ||= Logs.build_logger_provider(model.logger_provider, sdk.resource)
         sdk
       end
 
@@ -38,6 +40,7 @@ module Dash0
 
         ::OpenTelemetry::Config.install(sdk)
         install_meter_provider(sdk.meter_provider) if sdk.meter_provider
+        ::OpenTelemetry.logger_provider = sdk.logger_provider if sdk.logger_provider
         sdk
       end
 
