@@ -109,6 +109,7 @@ When this variable is unset, all supported instrumentations are enabled.
 | Library | Gem | Instrumentation name |
 | --- | --- | --- |
 | Anthropic | `anthropic` | `anthropic` |
+| OpenAI | `openai` | `openai` |
 
 ### Cloud / AWS
 
