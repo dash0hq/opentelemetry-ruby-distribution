@@ -139,6 +139,15 @@ module Dash0
         assert result[:same_logger_provider]
       end
 
+      # The integration tests boot from the fixture, which keeps the documented example working.
+      def test_documented_example_matches_the_fixture
+        root = File.expand_path('../../..', __dir__)
+        docs = File.read(File.join(root, 'docs', 'configuration.md'))
+        example = docs[/^A file that exports all three signals.*?```yaml\n(.*?)```/m, 1]
+
+        assert_equal File.read(File.join(root, 'test', 'fixtures', 'otel-config.yaml')), example
+      end
+
       def test_headers_to_hash
         headers = Struct.new(:name, :value)
         cfg = Struct.new(:headers, :headers_list)
