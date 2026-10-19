@@ -26,7 +26,7 @@ The distribution checks whether the OpenTelemetry SDK is already loaded (i.e. th
 If it is, the distribution logs a message and stands down to avoid conflicting with the application's own setup.
 
 **Missing collector URL.**
-If `DASH0_OTEL_COLLECTOR_BASE_URL` is not set, the distribution logs a message and stands down rather than export to nowhere.
+If neither `DASH0_OTEL_COLLECTOR_BASE_URL` nor `OTEL_CONFIG_FILE` is set, the distribution logs a message and stands down rather than export to nowhere.
 
 ## Graceful stand-down
 

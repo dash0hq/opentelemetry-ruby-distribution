@@ -27,7 +27,9 @@ Gem::Specification.new do |spec|
   spec.required_ruby_version = '>= 3.3'
 
   # Upstream OpenTelemetry building blocks.
-  spec.add_dependency 'opentelemetry-exporter-otlp', '~> 0.37.0'
+  spec.add_dependency 'opentelemetry-config', '~> 0.1.1'
+  # TODO: return to ~> 0.37.0 once opentelemetry-config relaxes its ~> 0.34.1 constraint.
+  spec.add_dependency 'opentelemetry-exporter-otlp', '~> 0.34.1'
   spec.add_dependency 'opentelemetry-exporter-otlp-logs', '~> 0.7.0'
   spec.add_dependency 'opentelemetry-exporter-otlp-metrics', '~> 0.14.0'
   spec.add_dependency 'opentelemetry-instrumentation-all', '~> 0.99.0'

@@ -22,6 +22,7 @@ The distribution configures the OpenTelemetry SDK, installs all supported instru
 - **OTLP/HTTP export.** Traces, metrics, and logs are exported over HTTP/protobuf to `${DASH0_OTEL_COLLECTOR_BASE_URL}/v1/{traces,metrics,logs}`.
 - **Bundler-independent.** The distribution ships its own gem bundle and can be injected without modifying the application's `Gemfile` or `Gemfile.lock`.
 - **Fail-open.** On an unsupported Ruby version, or if the distribution itself encounters an error, it stands down cleanly without interfering with the application.
+- **Declarative configuration.** The SDK can be configured with an OpenTelemetry configuration file via `OTEL_CONFIG_FILE`.
 - **Standard `OTEL_*` variables honored.** The distribution uses the upstream SDK and exporters, so all standard OpenTelemetry environment variables work as documented.
 
 ## Intended use

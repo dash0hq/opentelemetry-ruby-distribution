@@ -32,6 +32,35 @@ module Dash0
         end
       end
 
+      def test_config_file_gate
+        with_env('OTEL_CONFIG_FILE' => ' /etc/otel.yaml ') do
+          assert_equal '/etc/otel.yaml', Boot.send(:config_file_path)
+        end
+        with_env('OTEL_CONFIG_FILE' => '  ') { assert_nil Boot.send(:config_file_path) }
+        with_env('OTEL_CONFIG_FILE' => nil) { assert_nil Boot.send(:config_file_path) }
+      end
+
+      def test_config_file_takes_precedence_over_collector_base_url
+        result = run_in_subprocess(
+          'OTEL_CONFIG_FILE' => '/nonexistent/otel.yaml',
+          'DASH0_OTEL_COLLECTOR_BASE_URL' => 'http://localhost:4318'
+        ) do
+          require 'stringio'
+          require 'dash0/opentelemetry'
+          configured = []
+          Dash0::OpenTelemetry::Boot.define_singleton_method(:configure) { |url| configured << [:env, url] }
+          Dash0::OpenTelemetry::Boot.define_singleton_method(:configure_from_file) { |path| configured << [:file, path] }
+
+          $stderr = StringIO.new
+          Dash0::OpenTelemetry.boot!
+          { configured: configured, stderr: $stderr.string }
+        end
+
+        refute result[:error], result[:error]
+        assert_equal [[:file, '/nonexistent/otel.yaml']], result[:configured]
+        assert_includes result[:stderr], 'DASH0_OTEL_COLLECTOR_BASE_URL is ignored'
+      end
+
       def test_sdk_loaded_detection
         assert Boot.send(:sdk_loaded?, ['/gems/opentelemetry-sdk-1.11.0/lib/opentelemetry/sdk.rb'])
         refute Boot.send(:sdk_loaded?, ['/gems/some-other-gem/lib/foo.rb'])

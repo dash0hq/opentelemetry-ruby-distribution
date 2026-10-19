@@ -55,6 +55,38 @@ module Dash0
         install_debug_span_printer if Environment.opted_in?(DEBUG_PRINT_SPANS_ENV)
       end
 
+      # Configures the SDK from a declarative configuration file. The file is the
+      # complete SDK configuration, so the env-driven defaults, the Dash0 resource,
+      # and the debug span printer do not apply.
+      #
+      # @param path [String] path to the declarative configuration file
+      # @return [OpenTelemetry::Config::RubySDK, nil] the installed SDK, or nil
+      #   when the file disables it
+      # @raise [StandardError] when the file cannot be loaded
+      def apply_config_file(path)
+        require_sdk_gems
+        require 'opentelemetry-config'
+        DeclarativeConfig::ResourceDetectors.install
+
+        model = parse_config_file(path)
+        raise "could not load the configuration file #{path}" unless model
+
+        sdk = DeclarativeConfig.install(DeclarativeConfig.create(model))
+        sdk unless sdk.equal?(::OpenTelemetry::Config::NOOP_SDK)
+      end
+
+      # Parses a configuration file with environment variable substitution, which
+      # opentelemetry-config 0.1.1 lacks. Defers to upstream once it has it.
+      def parse_config_file(path)
+        return ::OpenTelemetry::Config.parse(path) if defined?(::OpenTelemetry::Config::EnvSubstitution)
+
+        ::OpenTelemetry::Config::Model::OpenTelemetryConfiguration.from_hash(
+          DeclarativeConfig::EnvSubstitution.load(File.read(path))
+        )
+      rescue SystemCallError, Psych::Exception, DeclarativeConfig::EnvSubstitution::Error => e
+        raise "could not load the configuration file #{path}: #{e.message}"
+      end
+
       def configure_exporter_defaults(base_url)
         Environment.set_default('OTEL_EXPORTER_OTLP_ENDPOINT', base_url)
         Environment.set_default('OTEL_EXPORTER_OTLP_PROTOCOL', DEFAULT_PROTOCOL)
