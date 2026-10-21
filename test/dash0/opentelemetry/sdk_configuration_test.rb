@@ -151,15 +151,13 @@ module Dash0
           require 'stringio'
           $stdout = StringIO.new
           $stderr = StringIO.new
-          # The default OpenTelemetry.logger writes to the $stdout it was first created with.
-          ::OpenTelemetry.logger = nil if defined?(::OpenTelemetry)
           require 'dash0-opentelemetry'
           { booted: Dash0::OpenTelemetry::Boot.booted?, stdout: $stdout.string, stderr: $stderr.string }
         end
 
         refute result[:error], result[:error]
         refute result[:booted]
-        assert_includes result[:stdout], 'invalid substitution reference ${DASH0_TEST_UNSET:?error}'
+        assert_includes result[:stdout], 'DASH0_TEST_UNSET'
         assert_includes result[:stderr], 'could not load the configuration file'
       end
 

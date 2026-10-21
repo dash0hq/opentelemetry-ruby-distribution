@@ -143,10 +143,11 @@ module Dash0
       def test_headers_to_hash
         headers = Struct.new(:name, :value)
         cfg = Struct.new(:headers, :headers_list)
+        metrics = DeclarativeConfig::Metrics
 
-        assert_equal({ 'a' => '1' }, DeclarativeConfig.headers_to_hash(cfg.new([headers.new('a', '1')], 'b=2')))
-        assert_equal({ 'b' => '2', 'c' => '3=4' }, DeclarativeConfig.headers_to_hash(cfg.new(nil, 'b=2, c=3=4')))
-        assert_empty DeclarativeConfig.headers_to_hash(cfg.new(nil, nil))
+        assert_equal({ 'a' => '1' }, metrics.headers_to_hash(cfg.new([headers.new('a', '1')], 'b=2')))
+        assert_equal({ 'b' => '2', 'c' => '3=4' }, metrics.headers_to_hash(cfg.new(nil, 'b=2, c=3=4')))
+        assert_empty metrics.headers_to_hash(cfg.new(nil, nil))
       end
     end
   end

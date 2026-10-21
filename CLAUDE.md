@@ -27,8 +27,8 @@ Key modules:
   `distribution.rb`, `kubernetes_pod.rb`, `service_name_fallback.rb`.
 - `lib/dash0/opentelemetry/declarative_config.rb` and `declarative_config/` —
   `OTEL_CONFIG_FILE` support on top of `opentelemetry-config`: copies of
-  unreleased upstream changes (env substitution, meter and logger providers)
-  and the patch that lets a file name the Dash0 resource detectors.
+  unreleased upstream changes (the meter provider and metric views) and the
+  patch that lets a file name the Dash0 resource detectors.
 
 ## Coding conventions
 

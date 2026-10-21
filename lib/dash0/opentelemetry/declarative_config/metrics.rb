@@ -105,7 +105,7 @@ module Dash0
 
           warn_unsupported('encoding: json') if cfg.encoding == 'json'
 
-          headers = DeclarativeConfig.headers_to_hash(cfg)
+          headers = headers_to_hash(cfg)
           opts = {
             endpoint: cfg.endpoint,
             certificate_file: cfg.tls&.ca_file,
@@ -117,6 +117,25 @@ module Dash0
           }.compact
 
           ::OpenTelemetry::Exporter::OTLP::Metrics::MetricsExporter.new(**opts)
+        end
+
+        # Returns exporter headers from +headers+, or from +headers_list+ when
+        # +headers+ is empty.
+        def headers_to_hash(cfg)
+          headers = {}
+
+          Array(cfg.headers).each do |pair|
+            headers[pair.name] = pair.value if pair&.name
+          end
+
+          if headers.empty? && cfg.headers_list.is_a?(String)
+            cfg.headers_list.split(',').each do |entry|
+              key, value = entry.strip.split('=', 2)
+              headers[key] = value if key && value
+            end
+          end
+
+          headers
         end
 
         # Warns about exporter options the metrics SDK can't apply per reader.
