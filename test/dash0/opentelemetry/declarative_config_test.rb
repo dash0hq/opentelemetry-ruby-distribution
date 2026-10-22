@@ -113,30 +113,22 @@ module Dash0
           require 'opentelemetry-config'
 
           meter_provider = ::OpenTelemetry::SDK::Metrics::MeterProvider.new
-          logger_provider = ::OpenTelemetry::SDK::Logs::LoggerProvider.new
           ::OpenTelemetry::Config.define_singleton_method(:create) do |_model|
-            ::OpenTelemetry::Config::RubySDK.new(meter_provider: meter_provider, logger_provider: logger_provider)
+            ::OpenTelemetry::Config::RubySDK.new(meter_provider: meter_provider)
           end
           Dash0::OpenTelemetry::DeclarativeConfig::Metrics.define_singleton_method(:build_meter_provider) do |*|
             raise 'must not build a meter provider when opentelemetry-config already did'
           end
-          Dash0::OpenTelemetry::DeclarativeConfig::Logs.define_singleton_method(:build_logger_provider) do |*|
-            raise 'must not build a logger provider when opentelemetry-config already did'
-          end
 
           model = ::OpenTelemetry::Config::Model::OpenTelemetryConfiguration.from_hash(
-            'file_format' => '1.0', 'meter_provider' => { 'readers' => [] }, 'logger_provider' => { 'processors' => [] }
+            'file_format' => '1.0', 'meter_provider' => { 'readers' => [] }
           )
           sdk = Dash0::OpenTelemetry::DeclarativeConfig.create(model)
-          {
-            same_meter_provider: sdk.meter_provider.equal?(meter_provider),
-            same_logger_provider: sdk.logger_provider.equal?(logger_provider)
-          }
+          { same_meter_provider: sdk.meter_provider.equal?(meter_provider) }
         end
 
         refute result[:error], result[:error]
         assert result[:same_meter_provider]
-        assert result[:same_logger_provider]
       end
 
       # The integration tests boot from the fixture, which keeps the documented example working.
@@ -151,10 +143,11 @@ module Dash0
       def test_headers_to_hash
         headers = Struct.new(:name, :value)
         cfg = Struct.new(:headers, :headers_list)
+        metrics = DeclarativeConfig::Metrics
 
-        assert_equal({ 'a' => '1' }, DeclarativeConfig.headers_to_hash(cfg.new([headers.new('a', '1')], 'b=2')))
-        assert_equal({ 'b' => '2', 'c' => '3=4' }, DeclarativeConfig.headers_to_hash(cfg.new(nil, 'b=2, c=3=4')))
-        assert_empty DeclarativeConfig.headers_to_hash(cfg.new(nil, nil))
+        assert_equal({ 'a' => '1' }, metrics.headers_to_hash(cfg.new([headers.new('a', '1')], 'b=2')))
+        assert_equal({ 'b' => '2', 'c' => '3=4' }, metrics.headers_to_hash(cfg.new(nil, 'b=2, c=3=4')))
+        assert_empty metrics.headers_to_hash(cfg.new(nil, nil))
       end
     end
   end

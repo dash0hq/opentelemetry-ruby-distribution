@@ -97,7 +97,7 @@ logger_provider:
 
 A reference is written as `${NAME}`, `${env:NAME}`, or `${NAME:-default}`, where the default applies when the variable is unset or empty.
 Use `$$` for a literal `$`.
-Write a component without settings as `{}`, e.g. `console: {}`; the current `opentelemetry-config` release ignores a component written with no value at all.
+Write a component without settings as `{}`, e.g. `batch: {}`; some components, such as processors, are ignored when written with no value at all.
 Without a `propagator` section, trace context is not propagated.
 
 These distribution settings still apply with a configuration file: `DASH0_DISABLE`, `DASH0_AUTOMATIC_SERVICE_NAME`, `DASH0_BOOTSTRAP_SPAN`, `DASH0_FLUSH_ON_SIGTERM_SIGINT`, `DASH0_FLUSH_ON_EXIT`, `DASH0_DEBUG`, and `OTEL_RUBY_ENABLED_INSTRUMENTATIONS`.

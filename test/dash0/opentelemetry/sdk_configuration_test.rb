@@ -149,14 +149,16 @@ module Dash0
           disabled: ${DASH0_TEST_UNSET:?error}
         YAML
           require 'stringio'
+          $stdout = StringIO.new
           $stderr = StringIO.new
           require 'dash0-opentelemetry'
-          { booted: Dash0::OpenTelemetry::Boot.booted?, stderr: $stderr.string }
+          { booted: Dash0::OpenTelemetry::Boot.booted?, stdout: $stdout.string, stderr: $stderr.string }
         end
 
         refute result[:error], result[:error]
         refute result[:booted]
-        assert_includes result[:stderr], 'invalid substitution reference ${DASH0_TEST_UNSET:?error}'
+        assert_includes result[:stdout], 'DASH0_TEST_UNSET'
+        assert_includes result[:stderr], 'could not load the configuration file'
       end
 
       def test_config_file_that_disables_the_sdk_installs_nothing

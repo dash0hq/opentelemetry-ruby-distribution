@@ -68,23 +68,11 @@ module Dash0
         require 'opentelemetry-config'
         DeclarativeConfig::ResourceDetectors.install
 
-        model = parse_config_file(path)
+        model = ::OpenTelemetry::Config.parse(path)
         raise "could not load the configuration file #{path}" unless model
 
         sdk = DeclarativeConfig.install(DeclarativeConfig.create(model))
         sdk unless sdk.equal?(::OpenTelemetry::Config::NOOP_SDK)
-      end
-
-      # Parses a configuration file with environment variable substitution, which
-      # opentelemetry-config 0.1.1 lacks. Defers to upstream once it has it.
-      def parse_config_file(path)
-        return ::OpenTelemetry::Config.parse(path) if defined?(::OpenTelemetry::Config::EnvSubstitution)
-
-        ::OpenTelemetry::Config::Model::OpenTelemetryConfiguration.from_hash(
-          DeclarativeConfig::EnvSubstitution.load(File.read(path))
-        )
-      rescue SystemCallError, Psych::Exception, DeclarativeConfig::EnvSubstitution::Error => e
-        raise "could not load the configuration file #{path}: #{e.message}"
       end
 
       def configure_exporter_defaults(base_url)
