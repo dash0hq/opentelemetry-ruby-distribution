@@ -30,10 +30,10 @@ Gem::Specification.new do |spec|
   spec.add_dependency 'opentelemetry-config', '~> 0.2.0'
   spec.add_dependency 'opentelemetry-exporter-otlp', '~> 0.37.0'
   spec.add_dependency 'opentelemetry-exporter-otlp-logs', '~> 0.7.0'
-  spec.add_dependency 'opentelemetry-exporter-otlp-metrics', '~> 0.14.0'
+  spec.add_dependency 'opentelemetry-exporter-otlp-metrics', '>= 0.14', '< 0.16'
   spec.add_dependency 'opentelemetry-instrumentation-all', '~> 0.99.0'
   spec.add_dependency 'opentelemetry-logs-sdk', '~> 0.8.1'
-  spec.add_dependency 'opentelemetry-metrics-sdk', '~> 0.21.0'
+  spec.add_dependency 'opentelemetry-metrics-sdk', '>= 0.21', '< 0.23'
   spec.add_dependency 'opentelemetry-resource-detector-container', '~> 0.4.0'
   spec.add_dependency 'opentelemetry-sdk', '~> 1.13.1'
 
