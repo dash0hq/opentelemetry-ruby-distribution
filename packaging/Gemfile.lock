@@ -5,10 +5,10 @@ PATH
       opentelemetry-config (~> 0.2.0)
       opentelemetry-exporter-otlp (~> 0.37.0)
       opentelemetry-exporter-otlp-logs (~> 0.7.0)
-      opentelemetry-exporter-otlp-metrics (~> 0.14.0)
-      opentelemetry-instrumentation-all (~> 0.99.0)
+      opentelemetry-exporter-otlp-metrics (>= 0.14, < 0.16)
+      opentelemetry-instrumentation-all (>= 0.99, < 0.101)
       opentelemetry-logs-sdk (~> 0.8.1)
-      opentelemetry-metrics-sdk (~> 0.21.0)
+      opentelemetry-metrics-sdk (>= 0.21, < 0.23)
       opentelemetry-resource-detector-container (~> 0.4.0)
       opentelemetry-sdk (~> 1.13.1)
 
@@ -43,7 +43,7 @@ GEM
     google-protobuf (4.36.2-x86_64-linux-musl)
       bigdecimal
       rake (~> 13.3)
-    googleapis-common-protos-types (1.23.0)
+    googleapis-common-protos-types (1.25.0)
       google-protobuf (~> 4.26)
     logger (1.7.0)
     opentelemetry-api (1.11.1)
@@ -78,7 +78,7 @@ GEM
       opentelemetry-logs-sdk (~> 0.1)
       opentelemetry-sdk
       opentelemetry-semantic_conventions
-    opentelemetry-exporter-otlp-metrics (0.14.0)
+    opentelemetry-exporter-otlp-metrics (0.15.0)
       google-protobuf (>= 3.18, < 5.0)
       googleapis-common-protos-types (~> 1.3)
       opentelemetry-api (~> 1.1)
@@ -112,7 +112,7 @@ GEM
       opentelemetry-instrumentation-active_support (~> 0.10)
     opentelemetry-instrumentation-active_support (0.12.1)
       opentelemetry-instrumentation-base (~> 0.25)
-    opentelemetry-instrumentation-all (0.99.0)
+    opentelemetry-instrumentation-all (0.100.0)
       opentelemetry-instrumentation-active_model_serializers (~> 0.25.0)
       opentelemetry-instrumentation-anthropic (~> 0.5.0)
       opentelemetry-instrumentation-aws_lambda (~> 0.7.0)
@@ -135,7 +135,7 @@ GEM
       opentelemetry-instrumentation-lmdb (~> 0.28.0)
       opentelemetry-instrumentation-mongo (~> 0.26.0)
       opentelemetry-instrumentation-mysql2 (~> 0.34.0)
-      opentelemetry-instrumentation-net_http (~> 0.29.0)
+      opentelemetry-instrumentation-net_http (~> 0.30.0)
       opentelemetry-instrumentation-openai (~> 0.1.0)
       opentelemetry-instrumentation-pg (~> 0.37.0)
       opentelemetry-instrumentation-que (~> 0.13.0)
@@ -202,7 +202,7 @@ GEM
       opentelemetry-helpers-sql
       opentelemetry-helpers-sql-processor (>= 0.5.1, < 1.0)
       opentelemetry-instrumentation-base (~> 0.25)
-    opentelemetry-instrumentation-net_http (0.29.2)
+    opentelemetry-instrumentation-net_http (0.30.0)
       opentelemetry-instrumentation-base (~> 0.25)
     opentelemetry-instrumentation-openai (0.1.0)
       opentelemetry-instrumentation-base (~> 0.27)
@@ -255,7 +255,7 @@ GEM
       opentelemetry-sdk (~> 1.3)
     opentelemetry-metrics-api (0.10.0)
       opentelemetry-api (~> 1.0)
-    opentelemetry-metrics-sdk (0.21.0)
+    opentelemetry-metrics-sdk (0.22.0)
       opentelemetry-api (~> 1.1)
       opentelemetry-metrics-api (~> 0.10.0)
       opentelemetry-sdk (~> 1.13.0)
@@ -300,7 +300,7 @@ CHECKSUMS
   google-protobuf (4.36.2-x86_64-darwin) sha256=8d1bd2a344f7f589703b202ad2ee4cca8ef731b4ced45782ef92d385967384ba
   google-protobuf (4.36.2-x86_64-linux-gnu) sha256=d25a820873e423f1d209ae8c672a4a28b019e2429debd0901d26670a0b4e14db
   google-protobuf (4.36.2-x86_64-linux-musl) sha256=0fa17686c896da96a60a705e56ddc7d4ff56413f52787c655bd4c9fb33ffe14f
-  googleapis-common-protos-types (1.23.0) sha256=992e740a523794d9fc5f29a504465d8fc737aaa16c930fe7228e3346860faf0a
+  googleapis-common-protos-types (1.25.0) sha256=3eac7998e9e52f506d5a68d944284b8d2f6d65d744ab92a0cdd269198a009d15
   logger (1.7.0) sha256=196edec7cc44b66cfb40f9755ce11b392f21f7967696af15d274dde7edff0203
   opentelemetry-api (1.11.1) sha256=d07f9987ea6240b3fd5ed5dd7450f93c58e403e0553e804069c23ae18ba61ff7
   opentelemetry-common (0.25.2) sha256=c035d44987789356fe8feeeb870708b44fe7564ffc032dec7200c39da92a911d
@@ -308,7 +308,7 @@ CHECKSUMS
   opentelemetry-exporter-otlp (0.37.0) sha256=edc8bda657dce5f4d527ac735f75d44043bb5924de6df0e3f01260108aa76136
   opentelemetry-exporter-otlp-common (0.4.0) sha256=a52eee35b18267b960b107dbd875cdd6d66d0f8e09e91332a87983ca0f645cd8
   opentelemetry-exporter-otlp-logs (0.7.0) sha256=a6a53d24a9287e20f73a7a29180bfa10da2c205a72d12d5a8f47f98d3165843d
-  opentelemetry-exporter-otlp-metrics (0.14.0) sha256=ba25126db14cbb25c00d9ee0f20ca189966fb66132744c70c20c50e7dea421f1
+  opentelemetry-exporter-otlp-metrics (0.15.0) sha256=54ab87d96462988736c02588cffef5526ccd262834b70ecced53a79c69b1414c
   opentelemetry-helpers-mysql (0.6.0) sha256=7eeb5e6950c434775a8cf28b5fde4defc12e8b865c86479ce3119fcf593d9337
   opentelemetry-helpers-sql (0.4.0) sha256=b10e8c3a2cca28a98af951bbb3e4efdc59e68b25ba0825e055574af543420afb
   opentelemetry-helpers-sql-processor (0.5.1) sha256=c0a054c56429b549af33b7af9ad1db9db2cc33f1267fe120cbee4241fb6cf825
@@ -320,7 +320,7 @@ CHECKSUMS
   opentelemetry-instrumentation-active_record (0.13.0) sha256=239fceaae5a42e82dd9dd87bc63b1888bea32058dac0779b5ea36110fcb3a299
   opentelemetry-instrumentation-active_storage (0.5.1) sha256=7acbab82184db6bf00c52fdb4ce7e2f4e6a1c6e3e5585b100d43d5d3e2d69b5b
   opentelemetry-instrumentation-active_support (0.12.1) sha256=c90dc3bb2a02ab614f95bee56f8f14ba6164a7dfaee6f87a2ca3de30fa87413d
-  opentelemetry-instrumentation-all (0.99.0) sha256=466c1ae770c288688e348fe454f762a5540ac26b9ac0f116d02ea4ac23623b11
+  opentelemetry-instrumentation-all (0.100.0) sha256=921d1be76b60c0a772313e5f1ab3c374578e6219d69dc03f81488f62cc305cfc
   opentelemetry-instrumentation-anthropic (0.5.0) sha256=a6b1e1f324d35323d4714a7f204c9d34c46da07529877a725829420a4a44bb13
   opentelemetry-instrumentation-aws_lambda (0.7.1) sha256=e7d19e8fc850fe337f9b5b4b692d02cec5172908e71e265c55af726cbeaab37b
   opentelemetry-instrumentation-aws_sdk (0.13.0) sha256=9f8cc9c80f5a520b5307eebc9f511120d35135e024045a5b3b30d42de6dc7355
@@ -343,7 +343,7 @@ CHECKSUMS
   opentelemetry-instrumentation-lmdb (0.28.0) sha256=a2e05b56ffc7a335714c4fdfe3b670a69ff71f05b99f43896f5a68652cb2f64f
   opentelemetry-instrumentation-mongo (0.26.0) sha256=511407dd4fe06cb11be54b40b0a38f684aba1fc0569a5f6982c013e07e370ffd
   opentelemetry-instrumentation-mysql2 (0.34.1) sha256=45945f3b4b8bd862ba87fbaaf7263eba3b840c65e2270215ec8e10827afb3a52
-  opentelemetry-instrumentation-net_http (0.29.2) sha256=4256105f058404eb0bd43e4a987e48f9e48fcade06b40a388092c380b2e946eb
+  opentelemetry-instrumentation-net_http (0.30.0) sha256=b42ebe9ef8ea1ba03031e138f2fb1113e3467a09f39249abf67a90a63e33a0be
   opentelemetry-instrumentation-openai (0.1.0) sha256=14bc3c92b1b303da63319284d664b8417d888b7f5a6434db1398093490af24c0
   opentelemetry-instrumentation-pg (0.37.1) sha256=20379fe92cbecfa70e4d216614f4c40db684cc145893953fe4c1dd97e969803a
   opentelemetry-instrumentation-que (0.13.0) sha256=95e04b8c17e89eaa446f5dff7975cf72c2e74f7e1e84717be47facf510613112
@@ -362,7 +362,7 @@ CHECKSUMS
   opentelemetry-logs-api (0.7.0) sha256=53ea80e36b830bf068d6e44ec3776da7bf42f62ccc1d5a5944cc221999febe5d
   opentelemetry-logs-sdk (0.8.1) sha256=cb02f3b325ebbced9eb07f56057c93b1ee2d8cb44144b77d0ecf59684747d3a3
   opentelemetry-metrics-api (0.10.0) sha256=bbeeba7606886d7a918b3e4edeb96ac51eb8d3308630d610eee12be53836c755
-  opentelemetry-metrics-sdk (0.21.0) sha256=eddb7772559e0b5a60b31059df68d4390baac2f2972f594574f2e9dd8da2e383
+  opentelemetry-metrics-sdk (0.22.0) sha256=8bf3e7d4dc32ff4b41d91e626ca36e8c23fab0bf0f77b1922e6abbe7bb80ebe2
   opentelemetry-registry (0.6.3) sha256=568fa8eaea94394f29f4fce3f0339ab10c3bf6d6c8beed6b3cfee6fd37fcc608
   opentelemetry-resource-detector-container (0.4.0) sha256=4c0f7855ff1a1a94cf701d1f43210f2a6cd8294d85e065abe3d076568bfdd80f
   opentelemetry-sdk (1.13.1) sha256=91c9cc315ac7ef30243549eeff8b27cd0d39bd02bdf9c9ae481ab96a1cec6754
