@@ -30,7 +30,7 @@ jobs:
       - uses: actions/checkout@v4
 
       - name: Sync docs to the Dash0 website
-        uses: dash0hq/sync-docs-action@3fbe55fed800da21ee24d6b6dba1a86435f61565  # v0.4.0
+        uses: dash0hq/sync-docs-action@4c9eef64cafde3358467a43f54be95f228fa2a42 # TODO: replace with the v0.6.0 release commit SHA (dash0hq/sync-docs-action#12)
         with:
           dry-run: ${{ github.event_name == 'pull_request' || inputs.dry-run }}
           target-repository: ${{ secrets.SYNC_DOCUMENTATION_TARGET_REPOSITORY }}

@@ -20,21 +20,35 @@ files:
     target: dash0/opentelemetry/distributions/ruby/overview.md
     title: About the Dash0 OpenTelemetry Ruby Distribution
     description: Overview of the Dash0 OpenTelemetry distribution for Ruby — zero-code instrumentation loaded via RUBYOPT, with full contrib instrumentation coverage.
+    tags:
+      - ruby
+      - auto-instrumentation
+      - opentelemetry-instrumentation
 
   - source: docs/getting-started.md
     target: dash0/opentelemetry/distributions/ruby/getting-started.md
     title: Getting Started
     description: Install the Dash0 OpenTelemetry Ruby distribution and send your first traces, metrics, and logs in minutes.
+    tags:
+      - ruby
+      - auto-instrumentation
+      - opentelemetry-instrumentation
 
   - source: docs/configuration.md
     target: dash0/opentelemetry/distributions/ruby/configuration.md
     title: Configuration
     description: All Dash0-specific and standard OpenTelemetry environment variables for the Ruby distribution.
+    tags:
+      - ruby
 
   - source: docs/auto-instrumentation.md
     target: dash0/opentelemetry/distributions/ruby/auto-instrumentation.md
     title: Auto-instrumentation
     description: The full set of Ruby libraries and frameworks automatically instrumented by the Dash0 OpenTelemetry Ruby distribution.
+    tags:
+      - ruby
+      - auto-instrumentation
+      - opentelemetry-instrumentation
 
   - source: docs/resource-detection.md
     target: dash0/opentelemetry/distributions/ruby/resource-detection.md
@@ -45,6 +59,11 @@ files:
     target: dash0/opentelemetry/distributions/ruby/kubernetes-injection.md
     title: Kubernetes Injection
     description: How the Dash0 Ruby distribution is injected into Kubernetes workloads via RUBYOPT, with Ruby version gating, double-instrumentation guards, and graceful stand-down.
+    tags:
+      - ruby
+      - kubernetes
+      - auto-instrumentation
+      - opentelemetry-instrumentation
 
 # Fail if any docs/*.md file is not listed above, to catch forgotten entries.
 coverage:
