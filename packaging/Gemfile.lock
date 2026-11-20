@@ -9,6 +9,7 @@ PATH
       opentelemetry-instrumentation-all (~> 0.99.0)
       opentelemetry-logs-sdk (~> 0.8.1)
       opentelemetry-metrics-sdk (~> 0.21.0)
+      opentelemetry-propagator-xray (~> 0.27.0)
       opentelemetry-resource-detector-container (~> 0.4.0)
       opentelemetry-sdk (~> 1.13.1)
 
@@ -259,6 +260,8 @@ GEM
       opentelemetry-api (~> 1.1)
       opentelemetry-metrics-api (~> 0.10.0)
       opentelemetry-sdk (~> 1.13.0)
+    opentelemetry-propagator-xray (0.27.0)
+      opentelemetry-api (~> 1.7)
     opentelemetry-registry (0.6.3)
       opentelemetry-api (~> 1.1)
     opentelemetry-resource-detector-container (0.4.0)
@@ -363,6 +366,7 @@ CHECKSUMS
   opentelemetry-logs-sdk (0.8.1) sha256=cb02f3b325ebbced9eb07f56057c93b1ee2d8cb44144b77d0ecf59684747d3a3
   opentelemetry-metrics-api (0.10.0) sha256=bbeeba7606886d7a918b3e4edeb96ac51eb8d3308630d610eee12be53836c755
   opentelemetry-metrics-sdk (0.21.0) sha256=eddb7772559e0b5a60b31059df68d4390baac2f2972f594574f2e9dd8da2e383
+  opentelemetry-propagator-xray (0.27.0) sha256=753f756c7ad3146f182d428b06041084eecc77769edfd280f365e0bc09b9c4d1
   opentelemetry-registry (0.6.3) sha256=568fa8eaea94394f29f4fce3f0339ab10c3bf6d6c8beed6b3cfee6fd37fcc608
   opentelemetry-resource-detector-container (0.4.0) sha256=4c0f7855ff1a1a94cf701d1f43210f2a6cd8294d85e065abe3d076568bfdd80f
   opentelemetry-sdk (1.13.1) sha256=91c9cc315ac7ef30243549eeff8b27cd0d39bd02bdf9c9ae481ab96a1cec6754

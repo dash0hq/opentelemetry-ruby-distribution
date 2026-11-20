@@ -107,6 +107,7 @@ stock OpenTelemetry SDK, exporters, and processors. Commonly useful ones:
 | `OTEL_EXPORTER_OTLP_ENDPOINT` | Overrides the OTLP endpoint. Defaulted from `DASH0_OTEL_COLLECTOR_BASE_URL`; set explicitly only to override. |
 | `OTEL_EXPORTER_OTLP_PROTOCOL` | OTLP protocol; defaults to `http/protobuf` (the only protocol supported by the Ruby SDK's default path). |
 | `OTEL_EXPORTER_OTLP_HEADERS` | Extra headers for the OTLP exporter (e.g. an authorization token when exporting directly to Dash0 rather than through the operator's collector). |
+| `OTEL_PROPAGATORS` | Context propagators; defaults to `tracecontext,baggage,xray`, so W3C `traceparent` and `baggage` and AWS X-Ray `X-Amzn-Trace-Id` headers are read and written (X-Ray wins on extract when both carry a parent). Set explicitly to override, e.g. `tracecontext,baggage` to drop X-Ray. |
 | `OTEL_METRIC_EXPORT_INTERVAL` / `OTEL_METRIC_EXPORT_TIMEOUT` | Periodic metric reader interval / timeout, in milliseconds. |
 
 Standard batch-processor variables (`OTEL_BSP_*`, `OTEL_BLRP_*`) and

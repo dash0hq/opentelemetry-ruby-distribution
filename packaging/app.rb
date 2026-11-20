@@ -20,4 +20,9 @@ puts "APP_RESOURCE telemetry.distro.name=#{attributes['telemetry.distro.name']} 
      "telemetry.distro.version=#{attributes['telemetry.distro.version']} " \
      "container.id=#{attributes['container.id']}"
 puts "APP_PLATFORM #{RUBY_PLATFORM}"
+
+carrier = {}
+OpenTelemetry.tracer_provider.tracer('smoke').in_span('inject') { OpenTelemetry.propagation.inject(carrier) }
+puts "APP_PROPAGATION_HEADERS #{carrier.keys.sort.join(',')}"
+puts "APP_PROPAGATORS_ENV #{ENV.fetch('OTEL_PROPAGATORS', 'unset')}"
 puts 'APP_DONE'
