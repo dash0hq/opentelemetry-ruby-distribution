@@ -30,6 +30,7 @@ Commonly useful ones:
 | `OTEL_EXPORTER_OTLP_ENDPOINT` | Overrides the OTLP endpoint. Defaults to `DASH0_OTEL_COLLECTOR_BASE_URL`; set explicitly only to override. |
 | `OTEL_EXPORTER_OTLP_PROTOCOL` | OTLP protocol. Defaults to `http/protobuf` (the only protocol the Ruby SDK's default path supports). |
 | `OTEL_EXPORTER_OTLP_HEADERS` | Extra headers for the OTLP exporter, e.g. an authorization token for direct Dash0 ingress. |
+| `OTEL_PROPAGATORS` | Context propagators. Defaults to `tracecontext,baggage,xray`: incoming `traceparent`, `baggage`, and AWS X-Ray `X-Amzn-Trace-Id` headers are all read, the X-Ray context wins when both carry a parent, and all three headers are written on outgoing requests. An `X-Amzn-Trace-Id` without a `Parent`, as an AWS load balancer adds, is ignored. Set explicitly to override, e.g. `tracecontext,baggage` to drop X-Ray. |
 | `OTEL_METRIC_EXPORT_INTERVAL` | Periodic metric reader interval, in milliseconds. |
 | `OTEL_METRIC_EXPORT_TIMEOUT` | Periodic metric reader timeout, in milliseconds. |
 
@@ -99,6 +100,7 @@ A reference is written as `${NAME}`, `${env:NAME}`, or `${NAME:-default}`, where
 Use `$$` for a literal `$`.
 Write a component without settings as `{}`, e.g. `batch: {}`; some components, such as processors, are ignored when written with no value at all.
 Without a `propagator` section, trace context is not propagated.
+The `tracecontext,baggage,xray` default does not apply; list `xray` in the file to propagate AWS X-Ray headers.
 
 These distribution settings still apply with a configuration file: `DASH0_DISABLE`, `DASH0_AUTOMATIC_SERVICE_NAME`, `DASH0_BOOTSTRAP_SPAN`, `DASH0_FLUSH_ON_SIGTERM_SIGINT`, `DASH0_FLUSH_ON_EXIT`, `DASH0_DEBUG`, and `OTEL_RUBY_ENABLED_INSTRUMENTATIONS`.
 `DASH0_DEBUG_PRINT_SPANS` does not apply; add a `console: {}` exporter to the file instead.

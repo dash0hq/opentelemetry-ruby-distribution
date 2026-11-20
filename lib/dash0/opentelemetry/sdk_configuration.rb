@@ -19,6 +19,13 @@ module Dash0
       # OTLP is only supported over HTTP/protobuf in the Ruby SDK's default path.
       DEFAULT_PROTOCOL = 'http/protobuf'
 
+      # Applied when OTEL_PROPAGATORS is unset. X-Ray comes after tracecontext so that,
+      # when a request carries both headers, the X-Ray context wins; an X-Ray header
+      # without a Parent (as an ALB adds) fails to extract and keeps the
+      # tracecontext result.
+      DEFAULT_PROPAGATORS = 'tracecontext,baggage,xray'
+      PROPAGATORS_ENV = 'OTEL_PROPAGATORS'
+
       # DASH0_DEBUG_PRINT_SPANS=true additionally prints every span to stdout.
       DEBUG_PRINT_SPANS_ENV = 'DASH0_DEBUG_PRINT_SPANS'
 
@@ -44,12 +51,13 @@ module Dash0
       #   `OTEL_EXPORTER_OTLP_ENDPOINT` is used (not a signal-specific variable),
       #   so each exporter appends its own `/v1/{traces,metrics,logs}` path.
       def apply(base_url:)
-        configure_exporter_defaults(base_url)
+        configure_env_defaults(base_url)
         require_sdk_gems
         resource = build_resource
 
         ::OpenTelemetry::SDK.configure do |c|
           c.resource = resource
+          c.propagators = default_propagators unless Environment.present?(PROPAGATORS_ENV)
         end
 
         install_debug_span_printer if Environment.opted_in?(DEBUG_PRINT_SPANS_ENV)
@@ -75,9 +83,19 @@ module Dash0
         sdk unless sdk.equal?(::OpenTelemetry::Config::NOOP_SDK)
       end
 
-      def configure_exporter_defaults(base_url)
+      def configure_env_defaults(base_url)
         Environment.set_default('OTEL_EXPORTER_OTLP_ENDPOINT', base_url)
         Environment.set_default('OTEL_EXPORTER_OTLP_PROTOCOL', DEFAULT_PROTOCOL)
+      end
+
+      # The DEFAULT_PROPAGATORS instances. Set on the configurator rather than in
+      # ENV so child processes, which may lack an X-Ray propagator, don't inherit it.
+      def default_propagators
+        [
+          ::OpenTelemetry::Trace::Propagation::TraceContext.text_map_propagator,
+          ::OpenTelemetry::Baggage::Propagation.text_map_propagator,
+          ::OpenTelemetry::Propagator::XRay.text_map_propagator
+        ]
       end
 
       def require_sdk_gems
@@ -88,6 +106,7 @@ module Dash0
         require 'opentelemetry-exporter-otlp'
         require 'opentelemetry-exporter-otlp-metrics'
         require 'opentelemetry-exporter-otlp-logs'
+        require 'opentelemetry-propagator-xray'
         require 'opentelemetry-resource-detector-container'
         # Populate the instrumentation registry so the installer can sweep it.
         require 'opentelemetry-instrumentation-all'

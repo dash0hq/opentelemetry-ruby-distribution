@@ -20,6 +20,7 @@ The distribution configures the OpenTelemetry SDK, installs all supported instru
 - **Zero-code instrumentation.** No `Gemfile` changes, no initializer, no `SDK.configure` call.
 - **Full instrumentation coverage.** All libraries in [`opentelemetry-instrumentation-all`](https://github.com/open-telemetry/opentelemetry-ruby-contrib) activate automatically as their target gems load.
 - **OTLP/HTTP export.** Traces, metrics, and logs are exported over HTTP/protobuf to `${DASH0_OTEL_COLLECTOR_BASE_URL}/v1/{traces,metrics,logs}`.
+- **W3C and AWS X-Ray propagation.** `OTEL_PROPAGATORS` defaults to `tracecontext,baggage,xray`, so traces stay connected through AWS load balancers.
 - **Bundler-independent.** The distribution ships its own gem bundle and can be injected without modifying the application's `Gemfile` or `Gemfile.lock`.
 - **Fail-open.** On an unsupported Ruby version, or if the distribution itself encounters an error, it stands down cleanly without interfering with the application.
 - **Declarative configuration.** The SDK can be configured with an OpenTelemetry configuration file via `OTEL_CONFIG_FILE`.
