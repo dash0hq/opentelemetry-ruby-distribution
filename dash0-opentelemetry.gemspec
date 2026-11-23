@@ -34,6 +34,7 @@ Gem::Specification.new do |spec|
   spec.add_dependency 'opentelemetry-instrumentation-all', '~> 0.99.0'
   spec.add_dependency 'opentelemetry-logs-sdk', '~> 0.8.1'
   spec.add_dependency 'opentelemetry-metrics-sdk', '~> 0.21.0'
+  spec.add_dependency 'opentelemetry-propagator-xray', '~> 0.27.0'
   spec.add_dependency 'opentelemetry-resource-detector-container', '~> 0.4.0'
   spec.add_dependency 'opentelemetry-sdk', '~> 1.13.1'
 
