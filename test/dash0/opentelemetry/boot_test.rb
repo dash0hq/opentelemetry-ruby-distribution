@@ -72,7 +72,6 @@ module Dash0
 
         refute result[:error], result[:error]
         assert_equal [[:file, default_path]], result[:configured]
-        assert_includes result[:stderr], "#{default_path} takes precedence over DASH0_OTEL_COLLECTOR_BASE_URL"
       end
 
       def test_config_file_takes_precedence_over_collector_base_url
@@ -93,7 +92,21 @@ module Dash0
 
         refute result[:error], result[:error]
         assert_equal [[:file, '/nonexistent/otel.yaml']], result[:configured]
-        assert_includes result[:stderr], 'takes precedence over DASH0_OTEL_COLLECTOR_BASE_URL'
+      end
+
+      def test_config_file_exports_to_the_collector_base_url
+        endpoints = config_file_trace_endpoints('DASH0_OTEL_COLLECTOR_BASE_URL' => 'http://collector:4318/')
+
+        assert_equal ['http://collector:4318/v1/traces'], endpoints
+      end
+
+      def test_config_file_prefers_an_explicit_otlp_endpoint_over_the_collector_base_url
+        endpoints = config_file_trace_endpoints(
+          'DASH0_OTEL_COLLECTOR_BASE_URL' => 'http://collector:4318',
+          'OTEL_EXPORTER_OTLP_ENDPOINT' => 'http://explicit:4318'
+        )
+
+        assert_equal ['http://explicit:4318/v1/traces'], endpoints
       end
 
       def test_sdk_loaded_detection
@@ -155,6 +168,31 @@ module Dash0
         refute result[:error], result[:error]
         assert_nil result[:propagated], "boot! must not propagate: got #{result[:propagated]}"
         refute result[:booted]
+      end
+
+      private
+
+      # Boots from a configuration file that interpolates OTEL_EXPORTER_OTLP_ENDPOINT,
+      # as the one the Dash0 package ships does, and returns the trace exporter URLs.
+      def config_file_trace_endpoints(env)
+        path = write_config_file(<<~YAML)
+          file_format: "1.0"
+          tracer_provider:
+            processors:
+              - batch:
+                  exporter:
+                    otlp_http:
+                      endpoint: ${OTEL_EXPORTER_OTLP_ENDPOINT:-http://localhost:4318}/v1/traces
+        YAML
+        result = run_in_subprocess(env.merge('OTEL_CONFIG_FILE' => path)) do
+          ENV.delete('OTEL_EXPORTER_OTLP_ENDPOINT') unless env.key?('OTEL_EXPORTER_OTLP_ENDPOINT')
+          require 'dash0-opentelemetry'
+          processors = ::OpenTelemetry.tracer_provider.instance_variable_get(:@span_processors)
+          { endpoints: processors.map { |p| p.instance_variable_get(:@exporter).instance_variable_get(:@uri).to_s } }
+        end
+
+        refute result[:error], result[:error]
+        result[:endpoints]
       end
     end
   end

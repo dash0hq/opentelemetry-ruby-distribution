@@ -26,9 +26,7 @@ module Dash0
           return if disabled?
 
           config_file = config_file_path
-          if config_file
-            warn_collector_base_url_ignored(config_file)
-          else
+          unless config_file
             base_url = collector_base_url
             return unless base_url
           end
@@ -68,6 +66,7 @@ module Dash0
         end
 
         def configure_from_file(path)
+          default_endpoint_from_collector_base_url
           unless SdkConfiguration.apply_config_file(path)
             Dash0::OpenTelemetry.log_debug("The SDK is disabled by the configuration file #{path}.")
             return
@@ -117,14 +116,14 @@ module Dash0
           default_path if File.file?(default_path)
         end
 
-        # Warns when the collector base URL is set alongside a configuration file,
-        # which takes precedence.
-        def warn_collector_base_url_ignored(path)
+        # Defaults OTEL_EXPORTER_OTLP_ENDPOINT to the collector base URL, so a
+        # configuration file that interpolates it exports where the base URL
+        # points. Trailing slashes are dropped because files append signal paths.
+        def default_endpoint_from_collector_base_url
           return unless Environment.present?(COLLECTOR_BASE_URL_ENV)
 
-          Dash0::OpenTelemetry.log_error(
-            "The configuration file #{path} takes precedence over #{COLLECTOR_BASE_URL_ENV}, which is ignored."
-          )
+          base_url = ENV.fetch(COLLECTOR_BASE_URL_ENV).strip.sub(%r{/+\z}, '')
+          Environment.set_default('OTEL_EXPORTER_OTLP_ENDPOINT', base_url)
         end
 
         # Detects whether OpenTelemetry's SDK was already loaded by the application

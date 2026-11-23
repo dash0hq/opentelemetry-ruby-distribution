@@ -58,7 +58,8 @@ When `OTEL_CONFIG_FILE` is set, the distribution uses that path even if the file
 The file is then the complete SDK configuration: it defines the resource, propagators, processors, readers, and exporters.
 As the specification requires, other `OTEL_*` environment variables are ignored unless the file references them with `${VARIABLE}` substitution.
 
-When a configuration file is used and `DASH0_OTEL_COLLECTOR_BASE_URL` is also set, the configuration file takes precedence and `DASH0_OTEL_COLLECTOR_BASE_URL` is ignored, with a warning.
+When a configuration file is used, `DASH0_OTEL_COLLECTOR_BASE_URL` sets the default for `OTEL_EXPORTER_OTLP_ENDPOINT`, without a trailing slash, so a file that references `${OTEL_EXPORTER_OTLP_ENDPOINT}` exports to the collector.
+An explicitly set `OTEL_EXPORTER_OTLP_ENDPOINT` takes precedence.
 
 A file that exports all three signals to a collector looks like this:
 

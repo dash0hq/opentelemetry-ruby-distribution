@@ -119,8 +119,9 @@ Set `OTEL_CONFIG_FILE` to the path of an OpenTelemetry
 [declarative configuration file](https://opentelemetry.io/docs/languages/sdk-configuration/declarative-configuration/)
 to configure the SDK from the file instead of environment variables. When
 `OTEL_CONFIG_FILE` is unset, the distribution uses
-`/etc/opentelemetry/ruby/otel-config.yaml` if that file exists. The file
-takes precedence over `DASH0_OTEL_COLLECTOR_BASE_URL`, and other `OTEL_*`
+`/etc/opentelemetry/ruby/otel-config.yaml` if that file exists.
+`DASH0_OTEL_COLLECTOR_BASE_URL` still sets the default for
+`OTEL_EXPORTER_OTLP_ENDPOINT`, which the file can reference, and other `OTEL_*`
 variables only apply when the file references them with `${VARIABLE}`
 substitution. The file can name the `dash0_distribution`, `dash0_kubernetes`,
 and `dash0_service_name` resource detectors. See
