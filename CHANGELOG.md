@@ -8,6 +8,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.2.0] - 2026-11-23
+
+### Added
+
+- Configure the OpenTelemetry SDK from a declarative configuration file by setting `OTEL_CONFIG_FILE`, as an alternative to `DASH0_OTEL_COLLECTOR_BASE_URL`. The file supports traces, metrics, logs, and `${VARIABLE}` substitution, and can name the `dash0_distribution`, `dash0_kubernetes`, and `dash0_service_name` resource detectors. (#32)
+- When `OTEL_CONFIG_FILE` is unset, read the declarative configuration file at `/etc/opentelemetry/ruby/otel-config.yaml` if it exists, before falling back to environment variables. With a configuration file, `DASH0_OTEL_COLLECTOR_BASE_URL` defaults `OTEL_EXPORTER_OTLP_ENDPOINT` instead of being ignored. (#40)
+- Instrument the `openai` gem automatically, by updating `opentelemetry-instrumentation-all` to 0.99.0. (#31)
+
+### Changed
+
+- **Breaking:** the default propagators change from `tracecontext,baggage` to `tracecontext,baggage,xray`, bundling `opentelemetry-propagator-xray` so traces stay connected through AWS load balancers. The X-Ray context wins over `traceparent` when both are present. Set `OTEL_PROPAGATORS=tracecontext,baggage` to restore the previous behavior. (#39)
+
 ## [0.1.0] - 2026-07-31
 
 ### Added
