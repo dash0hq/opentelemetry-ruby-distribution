@@ -32,12 +32,47 @@ module Dash0
         end
       end
 
-      def test_config_file_gate
+      def test_config_file_gate_uses_otel_config_file_when_set
+        default_path = write_config_file('file_format: "1.0"')
+
         with_env('OTEL_CONFIG_FILE' => ' /etc/otel.yaml ') do
-          assert_equal '/etc/otel.yaml', Boot.send(:config_file_path)
+          assert_equal '/etc/otel.yaml', Boot.send(:config_file_path, default_path)
         end
-        with_env('OTEL_CONFIG_FILE' => '  ') { assert_nil Boot.send(:config_file_path) }
-        with_env('OTEL_CONFIG_FILE' => nil) { assert_nil Boot.send(:config_file_path) }
+      end
+
+      def test_config_file_gate_falls_back_to_the_default_file_when_it_exists
+        default_path = write_config_file('file_format: "1.0"')
+
+        with_env('OTEL_CONFIG_FILE' => nil) { assert_equal default_path, Boot.send(:config_file_path, default_path) }
+        with_env('OTEL_CONFIG_FILE' => '  ') { assert_equal default_path, Boot.send(:config_file_path, default_path) }
+      end
+
+      def test_config_file_gate_is_nil_without_otel_config_file_or_default_file
+        with_env('OTEL_CONFIG_FILE' => nil) { assert_nil Boot.send(:config_file_path, '/nonexistent/otel.yaml') }
+        with_env('OTEL_CONFIG_FILE' => '  ') { assert_nil Boot.send(:config_file_path, '/nonexistent/otel.yaml') }
+      end
+
+      def test_boot_configures_from_the_default_file_when_otel_config_file_is_unset
+        default_path = write_config_file('file_format: "1.0"')
+        result = run_in_subprocess('DASH0_OTEL_COLLECTOR_BASE_URL' => 'http://localhost:4318') do
+          ENV.delete('OTEL_CONFIG_FILE')
+          require 'stringio'
+          require 'dash0/opentelemetry'
+          boot = Dash0::OpenTelemetry::Boot
+          boot.send(:remove_const, :DEFAULT_CONFIG_FILE)
+          boot.const_set(:DEFAULT_CONFIG_FILE, default_path)
+          configured = []
+          boot.define_singleton_method(:configure) { |url| configured << [:env, url] }
+          boot.define_singleton_method(:configure_from_file) { |path| configured << [:file, path] }
+
+          $stderr = StringIO.new
+          Dash0::OpenTelemetry.boot!
+          { configured: configured, stderr: $stderr.string }
+        end
+
+        refute result[:error], result[:error]
+        assert_equal [[:file, default_path]], result[:configured]
+        assert_includes result[:stderr], "#{default_path} takes precedence over DASH0_OTEL_COLLECTOR_BASE_URL"
       end
 
       def test_config_file_takes_precedence_over_collector_base_url
@@ -58,7 +93,7 @@ module Dash0
 
         refute result[:error], result[:error]
         assert_equal [[:file, '/nonexistent/otel.yaml']], result[:configured]
-        assert_includes result[:stderr], 'DASH0_OTEL_COLLECTOR_BASE_URL is ignored'
+        assert_includes result[:stderr], 'takes precedence over DASH0_OTEL_COLLECTOR_BASE_URL'
       end
 
       def test_sdk_loaded_detection

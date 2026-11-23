@@ -1,0 +1,12 @@
+# One of: added, changed, deprecated, removed, fixed, security
+# (matches a Keep a Changelog https://keepachangelog.com/en/1.1.0/ section)
+change_type: added
+
+# A short, user-facing description of the change, as it should read in CHANGELOG.md.
+note: >-
+  When `OTEL_CONFIG_FILE` is unset, read the declarative configuration file at
+  `/etc/opentelemetry/ruby/otel-config.yaml` if it exists, before falling back
+  to environment variables.
+
+# The GitHub issue and/or pull request number(s) this change relates to, e.g. [8].
+issues: [40]

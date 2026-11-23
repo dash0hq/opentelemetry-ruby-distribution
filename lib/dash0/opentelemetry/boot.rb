@@ -15,6 +15,7 @@ module Dash0
     module Boot
       COLLECTOR_BASE_URL_ENV = 'DASH0_OTEL_COLLECTOR_BASE_URL'
       CONFIG_FILE_ENV = 'OTEL_CONFIG_FILE'
+      DEFAULT_CONFIG_FILE = '/etc/opentelemetry/ruby/otel-config.yaml'
       DISABLE_ENV = 'DASH0_DISABLE'
 
       class << self
@@ -26,7 +27,7 @@ module Dash0
 
           config_file = config_file_path
           if config_file
-            warn_collector_base_url_ignored
+            warn_collector_base_url_ignored(config_file)
           else
             base_url = collector_base_url
             return unless base_url
@@ -97,7 +98,8 @@ module Dash0
           value = ENV.fetch(COLLECTOR_BASE_URL_ENV, nil)
           if value.nil? || value.strip.empty?
             Dash0::OpenTelemetry.log_error(
-              "Neither #{COLLECTOR_BASE_URL_ENV} nor #{CONFIG_FILE_ENV} is set; there is nowhere to export to. " \
+              "Neither #{COLLECTOR_BASE_URL_ENV} nor #{CONFIG_FILE_ENV} is set, and #{DEFAULT_CONFIG_FILE} " \
+              'does not exist; there is nowhere to export to. ' \
               'OpenTelemetry data will not be sent to Dash0.'
             )
             return nil
@@ -105,19 +107,23 @@ module Dash0
           value.strip
         end
 
-        # The declarative configuration file path, or nil when unset.
-        def config_file_path
-          Environment.present?(CONFIG_FILE_ENV) ? ENV.fetch(CONFIG_FILE_ENV).strip : nil
+        # The declarative configuration file path: OTEL_CONFIG_FILE when set,
+        # otherwise +default_path+ when that file exists, otherwise nil. A set
+        # OTEL_CONFIG_FILE is used even if the file is missing, so the SDK reports
+        # the error instead of the distribution silently using another file.
+        def config_file_path(default_path = DEFAULT_CONFIG_FILE)
+          return ENV.fetch(CONFIG_FILE_ENV).strip if Environment.present?(CONFIG_FILE_ENV)
+
+          default_path if File.file?(default_path)
         end
 
         # Warns when the collector base URL is set alongside a configuration file,
         # which takes precedence.
-        def warn_collector_base_url_ignored
+        def warn_collector_base_url_ignored(path)
           return unless Environment.present?(COLLECTOR_BASE_URL_ENV)
 
           Dash0::OpenTelemetry.log_error(
-            "Both #{CONFIG_FILE_ENV} and #{COLLECTOR_BASE_URL_ENV} are set. " \
-            "The configuration file takes precedence; #{COLLECTOR_BASE_URL_ENV} is ignored."
+            "The configuration file #{path} takes precedence over #{COLLECTOR_BASE_URL_ENV}, which is ignored."
           )
         end
 

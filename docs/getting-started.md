@@ -64,8 +64,8 @@ When the application starts, the distribution:
 
 1. Checks the Ruby version; stands down cleanly on Ruby older than 3.3.
 2. Checks `DASH0_DISABLE`; stands down if set to `true`.
-3. Checks `OTEL_CONFIG_FILE` and `DASH0_OTEL_COLLECTOR_BASE_URL`; stands down if neither is set.
+3. Looks for a configuration file, from `OTEL_CONFIG_FILE` or else `/etc/opentelemetry/ruby/otel-config.yaml` if it exists, and checks `DASH0_OTEL_COLLECTOR_BASE_URL`; stands down if there is neither.
 4. Checks whether the OpenTelemetry SDK is already loaded; stands down if so, to avoid double instrumentation.
-5. Configures the OpenTelemetry SDK from the configuration file if `OTEL_CONFIG_FILE` is set, otherwise with OTLP/HTTP exporters and Dash0 resource attributes.
+5. Configures the OpenTelemetry SDK from the configuration file if there is one, otherwise with OTLP/HTTP exporters and Dash0 resource attributes.
 6. Installs all supported instrumentations for libraries already loaded, then installs a `TracePoint` to catch libraries loaded later.
 7. Installs lifecycle handlers (SIGTERM/SIGINT flush if configured; `at_exit` flush by default).
