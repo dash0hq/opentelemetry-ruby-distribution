@@ -23,7 +23,7 @@ The distribution configures the OpenTelemetry SDK, installs all supported instru
 - **W3C and AWS X-Ray propagation.** `OTEL_PROPAGATORS` defaults to `tracecontext,baggage,xray`, so traces stay connected through AWS load balancers.
 - **Bundler-independent.** The distribution ships its own gem bundle and can be injected without modifying the application's `Gemfile` or `Gemfile.lock`.
 - **Fail-open.** On an unsupported Ruby version, or if the distribution itself encounters an error, it stands down cleanly without interfering with the application.
-- **Declarative configuration.** The SDK can be configured with an OpenTelemetry configuration file via `OTEL_CONFIG_FILE`.
+- **Declarative configuration.** The SDK can be configured with an OpenTelemetry configuration file via `OTEL_CONFIG_FILE`, or from `/etc/opentelemetry/ruby/otel-config.yaml` when that file exists.
 - **Standard `OTEL_*` variables honored.** The distribution uses the upstream SDK and exporters, so all standard OpenTelemetry environment variables work as documented.
 
 ## Intended use

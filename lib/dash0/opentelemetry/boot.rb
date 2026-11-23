@@ -15,6 +15,7 @@ module Dash0
     module Boot
       COLLECTOR_BASE_URL_ENV = 'DASH0_OTEL_COLLECTOR_BASE_URL'
       CONFIG_FILE_ENV = 'OTEL_CONFIG_FILE'
+      DEFAULT_CONFIG_FILE = '/etc/opentelemetry/ruby/otel-config.yaml'
       DISABLE_ENV = 'DASH0_DISABLE'
 
       class << self
@@ -25,9 +26,7 @@ module Dash0
           return if disabled?
 
           config_file = config_file_path
-          if config_file
-            warn_collector_base_url_ignored
-          else
+          unless config_file
             base_url = collector_base_url
             return unless base_url
           end
@@ -67,6 +66,7 @@ module Dash0
         end
 
         def configure_from_file(path)
+          default_endpoint_from_collector_base_url
           unless SdkConfiguration.apply_config_file(path)
             Dash0::OpenTelemetry.log_debug("The SDK is disabled by the configuration file #{path}.")
             return
@@ -97,7 +97,8 @@ module Dash0
           value = ENV.fetch(COLLECTOR_BASE_URL_ENV, nil)
           if value.nil? || value.strip.empty?
             Dash0::OpenTelemetry.log_error(
-              "Neither #{COLLECTOR_BASE_URL_ENV} nor #{CONFIG_FILE_ENV} is set; there is nowhere to export to. " \
+              "Neither #{COLLECTOR_BASE_URL_ENV} nor #{CONFIG_FILE_ENV} is set, and #{DEFAULT_CONFIG_FILE} " \
+              'does not exist; there is nowhere to export to. ' \
               'OpenTelemetry data will not be sent to Dash0.'
             )
             return nil
@@ -105,20 +106,24 @@ module Dash0
           value.strip
         end
 
-        # The declarative configuration file path, or nil when unset.
-        def config_file_path
-          Environment.present?(CONFIG_FILE_ENV) ? ENV.fetch(CONFIG_FILE_ENV).strip : nil
+        # The declarative configuration file path: OTEL_CONFIG_FILE when set,
+        # otherwise +default_path+ when that file exists, otherwise nil. A set
+        # OTEL_CONFIG_FILE is used even if the file is missing, so the SDK reports
+        # the error instead of the distribution silently using another file.
+        def config_file_path(default_path = DEFAULT_CONFIG_FILE)
+          return ENV.fetch(CONFIG_FILE_ENV).strip if Environment.present?(CONFIG_FILE_ENV)
+
+          default_path if File.file?(default_path)
         end
 
-        # Warns when the collector base URL is set alongside a configuration file,
-        # which takes precedence.
-        def warn_collector_base_url_ignored
+        # Defaults OTEL_EXPORTER_OTLP_ENDPOINT to the collector base URL, so a
+        # configuration file that interpolates it exports where the base URL
+        # points. Trailing slashes are dropped because files append signal paths.
+        def default_endpoint_from_collector_base_url
           return unless Environment.present?(COLLECTOR_BASE_URL_ENV)
 
-          Dash0::OpenTelemetry.log_error(
-            "Both #{CONFIG_FILE_ENV} and #{COLLECTOR_BASE_URL_ENV} are set. " \
-            "The configuration file takes precedence; #{COLLECTOR_BASE_URL_ENV} is ignored."
-          )
+          base_url = ENV.fetch(COLLECTOR_BASE_URL_ENV).strip.sub(%r{/+\z}, '')
+          Environment.set_default('OTEL_EXPORTER_OTLP_ENDPOINT', base_url)
         end
 
         # Detects whether OpenTelemetry's SDK was already loaded by the application

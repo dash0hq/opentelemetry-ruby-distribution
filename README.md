@@ -63,7 +63,7 @@ also be configured with a declarative configuration file (see below).
 
 | Variable | Description |
 | --- | --- |
-| `DASH0_OTEL_COLLECTOR_BASE_URL` | **Required** unless `OTEL_CONFIG_FILE` is set. Base URL of the OpenTelemetry collector to export to; each signal is sent to `<base>/v1/{traces,metrics,logs}`. If neither is set, the distribution stands down and exports nothing. (The Dash0 operator sets this for you.) |
+| `DASH0_OTEL_COLLECTOR_BASE_URL` | **Required** unless a configuration file is used (see [Declarative configuration](#declarative-configuration)). Base URL of the OpenTelemetry collector to export to; each signal is sent to `<base>/v1/{traces,metrics,logs}`. If neither is set, the distribution stands down and exports nothing. (The Dash0 operator sets this for you.) |
 | `DASH0_DISABLE` | Set to `true` to disable the distribution entirely. |
 | `DASH0_AUTOMATIC_SERVICE_NAME` | Set to `false` to opt out of the automatic `service.name` fallback (see below). |
 | `DASH0_BOOTSTRAP_SPAN` | If set to a non-empty string, a single internal span with that name is emitted immediately at startup. Useful for confirming the distribution is active. |
@@ -100,7 +100,7 @@ stock OpenTelemetry SDK, exporters, and processors. Commonly useful ones:
 
 | Variable | Description |
 | --- | --- |
-| `OTEL_CONFIG_FILE` | Path to a declarative configuration file. When set, the file configures the SDK instead of environment variables (see below). |
+| `OTEL_CONFIG_FILE` | Path to a declarative configuration file. When set, the file configures the SDK instead of environment variables (see below). When unset, `/etc/opentelemetry/ruby/otel-config.yaml` is used if it exists. |
 | `OTEL_SERVICE_NAME` | Sets `service.name` explicitly (and disables the automatic fallback). |
 | `OTEL_RESOURCE_ATTRIBUTES` | Additional resource attributes as `key=value` pairs. A `service.name` here also disables the automatic fallback. |
 | `OTEL_RUBY_ENABLED_INSTRUMENTATIONS` | Comma-separated allowlist of instrumentations to enable (by snake_case name, e.g. `net_http,rack`). When unset, all supported instrumentations are enabled. |
@@ -117,8 +117,11 @@ Standard batch-processor variables (`OTEL_BSP_*`, `OTEL_BLRP_*`) and
 
 Set `OTEL_CONFIG_FILE` to the path of an OpenTelemetry
 [declarative configuration file](https://opentelemetry.io/docs/languages/sdk-configuration/declarative-configuration/)
-to configure the SDK from the file instead of environment variables. The file
-takes precedence over `DASH0_OTEL_COLLECTOR_BASE_URL`, and other `OTEL_*`
+to configure the SDK from the file instead of environment variables. When
+`OTEL_CONFIG_FILE` is unset, the distribution uses
+`/etc/opentelemetry/ruby/otel-config.yaml` if that file exists.
+`DASH0_OTEL_COLLECTOR_BASE_URL` still sets the default for
+`OTEL_EXPORTER_OTLP_ENDPOINT`, which the file can reference, and other `OTEL_*`
 variables only apply when the file references them with `${VARIABLE}`
 substitution. The file can name the `dash0_distribution`, `dash0_kubernetes`,
 and `dash0_service_name` resource detectors. See
