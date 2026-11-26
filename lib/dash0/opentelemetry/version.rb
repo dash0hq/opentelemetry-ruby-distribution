@@ -5,7 +5,7 @@
 
 module Dash0
   module OpenTelemetry
-    VERSION = '0.2.0'
+    VERSION = '0.2.1'
 
     # Lowest Ruby version the distribution supports. Kept here (in a file that
     # must stay parse-safe on older Rubies) so the requirable entry point can

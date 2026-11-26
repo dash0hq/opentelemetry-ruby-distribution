@@ -8,6 +8,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.2.1] - 2026-11-26
+
+### Changed
+
+- Update `opentelemetry-instrumentation-all` to 0.102.0, `opentelemetry-metrics-sdk` to 0.22.0, and `opentelemetry-exporter-otlp-metrics` to 0.15.0. `net_http` now records the `http.client.request.duration` metric, and Rack, Rails and Sinatra server spans set `client.address`. (#36)
+
+### Fixed
+
+- Percent-decode `headers_list` in a configuration file, so `Authorization=Bearer%20<token>` sends `Bearer <token>` as it does from `OTEL_EXPORTER_OTLP_HEADERS`. (#41)
+
 ## [0.2.0] - 2026-11-23
 
 ### Added
