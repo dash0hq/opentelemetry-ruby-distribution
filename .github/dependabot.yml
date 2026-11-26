@@ -14,8 +14,9 @@ updates:
 
   # Packaging closure: the gems installed into the bundle the injector mounts.
   # This manifest owns OpenTelemetry bumps — it updates the gemspec constraints
-  # and the committed Gemfile.lock together. `increase` prefers bumping the
-  # requirement to the tested version over widening the range.
+  # and the committed Gemfile.lock together. Dependabot always widens gemspec
+  # runtime requirements into ranges, whatever versioning-strategy says, so
+  # test/dash0/gemspec_test.rb fails until each is pinned back to '~> X.Y.Z'.
   - package-ecosystem: "bundler"
     directory: "/packaging"
     schedule:
