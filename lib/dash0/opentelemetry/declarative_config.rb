@@ -3,6 +3,7 @@
 # SPDX-FileCopyrightText: Copyright 2026 Dash0 Inc.
 # SPDX-License-Identifier: Apache-2.0
 
+require 'dash0/opentelemetry/declarative_config/headers_list'
 require 'dash0/opentelemetry/declarative_config/metrics'
 require 'dash0/opentelemetry/declarative_config/metric_views'
 require 'dash0/opentelemetry/declarative_config/resource_detectors'

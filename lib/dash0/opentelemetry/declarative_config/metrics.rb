@@ -120,7 +120,7 @@ module Dash0
         end
 
         # Returns exporter headers from +headers+, or from +headers_list+ when
-        # +headers+ is empty.
+        # +headers+ is empty. Names and values in +headers_list+ are percent-decoded.
         def headers_to_hash(cfg)
           headers = {}
 
@@ -131,7 +131,7 @@ module Dash0
           if headers.empty? && cfg.headers_list.is_a?(String)
             cfg.headers_list.split(',').each do |entry|
               key, value = entry.strip.split('=', 2)
-              headers[key] = value if key && value
+              headers[HeadersList.decode(key)] = HeadersList.decode(value) if key && value
             end
           end
 
