@@ -1,0 +1,9 @@
+# One of: added, changed, deprecated, removed, fixed, security
+# (matches a Keep a Changelog https://keepachangelog.com/en/1.1.0/ section)
+change_type: changed
+
+# A short, user-facing description of the change, as it should read in CHANGELOG.md.
+note: Update `opentelemetry-instrumentation-all` to 0.102.0, `opentelemetry-metrics-sdk` to 0.22.0, and `opentelemetry-exporter-otlp-metrics` to 0.15.0. `net_http` now records the `http.client.request.duration` metric, and Rack, Rails and Sinatra server spans set `client.address`.
+
+# The GitHub issue and/or pull request number(s) this change relates to, e.g. [8].
+issues: [36]
