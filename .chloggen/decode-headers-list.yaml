@@ -1,0 +1,9 @@
+# One of: added, changed, deprecated, removed, fixed, security
+# (matches a Keep a Changelog https://keepachangelog.com/en/1.1.0/ section)
+change_type: fixed
+
+# A short, user-facing description of the change, as it should read in CHANGELOG.md.
+note: Percent-decode `headers_list` in a configuration file, so `Authorization=Bearer%20<token>` sends `Bearer <token>` as it does from `OTEL_EXPORTER_OTLP_HEADERS`.
+
+# The GitHub issue and/or pull request number(s) this change relates to, e.g. [8].
+issues: [41]
